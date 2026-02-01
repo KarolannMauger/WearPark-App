@@ -1,16 +1,5 @@
-import { View, Text, Button } from 'react-native';
-import { useRouter } from 'expo-router';
+import HomeScreen from '@/src/screens/HomeScreen';
 
 export default function Home() {
-  const router = useRouter();
-  
-  return (
-    <View>
-      <Text>Home</Text>
-      <Button 
-        title="Aller au profil" 
-        onPress={() => router.push('/profile')}
-      />
-    </View>
-  );
+  return <HomeScreen />;
 }
