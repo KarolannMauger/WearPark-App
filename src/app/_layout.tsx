@@ -26,15 +26,14 @@ export default function RootLayout() {
 
     return (
         <ThemeProvider>
-        <SafeAreaProvider>
-            <StatusBar
-                style='dark'
-                // style={theme === 'dark' ? 'light' : 'dark'}
-                backgroundColor="transparent"
-                translucent
-            />
-            <Stack screenOptions={{ headerShown: false }} />
-        </SafeAreaProvider>
+            <SafeAreaProvider>
+                <StatusBar
+                    style='dark'
+                    // style={theme === 'dark' ? 'light' : 'dark'}
+                    backgroundColor="transparent"
+                    translucent
+                />
+            </SafeAreaProvider>
         </ThemeProvider>
     );
 }

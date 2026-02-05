@@ -1,4 +1,6 @@
-{
+import 'dotenv/config';
+
+export default{
   "expo": {
     "name": "WearPark-App",
     "slug": "WearPark-App",
@@ -29,7 +31,13 @@
     },
     "plugins": [
       "expo-router",
-      "expo-font"
-    ]
+      "expo-font",
+      "expo-secure-store"
+    ],
+    extra: {
+      apiUrl: process.env.API_URL,
+      env: process.env.ENV,
+      debug: process.env.DEBUG === 'true',
+    },
   }
 }

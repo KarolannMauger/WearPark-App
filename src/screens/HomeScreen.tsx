@@ -12,13 +12,9 @@ export default function HomeScreen() {
 
   return (
     <View style={screenStyles.container}>
-      <Text>Home</Text>
-      <Button
-        title="Aller aux paramètres"
-        onPress={() => router.push('/settings')}
-        textStyle={{ color: theme.colors.textPrimary }}
-        style={{}}
-      />
+      <Text style={{ color: theme.colors.textPrimary, ...theme.typography.h1 }}>
+        Accueil
+      </Text>
     </View>
   );
 }
