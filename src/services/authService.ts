@@ -1,39 +1,59 @@
+// src/services/authService.ts
 import { publicApiClient } from './api';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-  };
+export interface User {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
 }
 
-// LOGIN - Public
-export const login = async (email: string, password: string) => {
-  const response = await publicApiClient.post<LoginResponse>('/auth/login', { 
-    email, 
-    password 
-  });
-  
-  // Sauvegarder le token de manière sécurisée
-  await SecureStore.setItemAsync('userToken', response.data.token);
-  
-  return response.data.user;
-};
+interface LoginResponse {
+  jwt: string;
+}
 
-// REGISTER - Public
-export const register = async (email: string, password: string, name: string) => {
-  const response = await publicApiClient.post('/auth/register', { 
-    email, 
-    password, 
-    name 
-  });
-  return response.data;
-};
+interface RegisterData {
+  email: string;
+  password: string;
+}
 
-// LOGOUT
-export const logout = async () => {
-  await SecureStore.deleteItemAsync('userToken');
+export const authService = {
+  register: async (userData: RegisterData): Promise<void> => {
+    await publicApiClient.post('/auth/register', userData);
+  },
+
+  login: async (email: string, password: string): Promise<void> => {
+    
+    const response = await publicApiClient.post<LoginResponse>('/auth/login', { 
+      email, 
+      password 
+    });
+    
+    await SecureStore.setItemAsync('userToken', response.data.jwt);
+    
+    await AsyncStorage.setItem('user', JSON.stringify({ email }));
+  },
+
+  logout: async (): Promise<void> => {
+    await SecureStore.deleteItemAsync('userToken');
+    await AsyncStorage.removeItem('user');
+  },
+
+  getStoredUser: async (): Promise<{ email: string } | null> => {
+    try {
+      const userJson = await AsyncStorage.getItem('user');
+      const user = userJson ? JSON.parse(userJson) : null;
+      return user;
+    } catch (error) {
+      console.error('❌ Error getting stored user:', error);
+      return null;
+    }
+  },
+
+  isAuthenticated: async (): Promise<boolean> => {
+    const token = await SecureStore.getItemAsync('userToken');
+    return !!token;
+  },
 };
