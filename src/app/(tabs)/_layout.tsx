@@ -1,34 +1,76 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function TabsLayout() {
+  const theme = useTheme();
+
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        tabBarActiveTintColor: theme.colors.icon,
         tabBarStyle: {
-          backgroundColor: '#ffffff',
+          backgroundColor: theme.colors.tabBackground,
         },
+        tabBarLabelStyle: {
+          fontFamily: 'Roboto_500Medium',
+          color: theme.colors.textSecondary
+        },
+        headerShown: false,
       }}
     >
       <Tabs.Screen
         name="home"
         options={{
           title: 'Accueil',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          tabBarIcon: ({ size, focused }) => (
+            <MaterialIcons
+              name="home"
+              size={size}
+              color={
+                focused
+                  ? theme.colors.icon
+                  : theme.colors.iconTab
+              }
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="motionReports"
+        options={{
+          title: 'Historique',
+          tabBarIcon: ({ size, focused }) => (
+            <MaterialIcons
+              name="history"
+              size={size}
+              color={
+                focused
+                  ? theme.colors.icon
+                  : theme.colors.iconTab
+              }
+            />
           ),
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
+          title: 'Profil',
+          tabBarIcon: ({ size, focused }) => (
+            <MaterialIcons
+              name="person"
+              size={size}
+              color={
+                focused
+                  ? theme.colors.icon
+                  : theme.colors.iconTab
+              }
+            />
           ),
         }}
       />
+
     </Tabs>
   );
 }

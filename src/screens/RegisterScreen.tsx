@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, ScrollView, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/src/context/UserContext";
 import { authService } from "@/src/services/authService";
+import { useTheme } from '../context/ThemeContext';
+import { createScreenStyles } from "../styles/screens/screenStyles";
+import { createMotionStyles } from '../styles/screens/motionStyle';
+import { createAuthStyles } from "../styles/screens/authStyles";
 
 export default function Register() {
+  const theme = useTheme();
+  const screenStyles = createScreenStyles(theme);
+  const authStyles = createAuthStyles(theme);
+
   const router = useRouter();
   const { login } = useUser();
 
@@ -45,12 +46,12 @@ export default function Register() {
         password: password,
       });
 
-      // logs in after signin up to eventually fill user form
+      // logs in after signup to eventually fill user form
       await login(trimmedEmail, password);
     } catch (err: any) {
       setError(
-        err?.response?.data?.message || 
-        err.message || 
+        err?.response?.data?.message ||
+        err.message ||
         "Signup failed. Please try again."
       );
     } finally {
@@ -59,25 +60,17 @@ export default function Register() {
   };
 
   return (
-    <ScrollView 
-      style={{ flex: 1, backgroundColor: '#fff' }}
-      contentContainerStyle={{ padding: 20, justifyContent: 'center', minHeight: '100%' }}
+    <ScrollView
+      style={authStyles.container}
+      contentContainerStyle={authStyles.contentContainer}
       keyboardShouldPersistTaps="handled"
     >
-      <Text style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 40 }}>
-        Create an account
-      </Text>
+      <Text style={authStyles.title}>Create an account</Text>
 
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ marginBottom: 8, fontSize: 14 }}>Email</Text>
+      <View style={authStyles.inputGroup}>
+        <Text style={authStyles.label}>Email</Text>
         <TextInput
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 16,
-          }}
+          style={authStyles.input}
           value={email}
           onChangeText={setEmail}
           placeholder="Enter your email"
@@ -87,18 +80,11 @@ export default function Register() {
         />
       </View>
 
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ marginBottom: 8, fontSize: 14 }}>Password</Text>
-        <View style={{ position: 'relative' }}>
+      <View style={authStyles.inputGroup}>
+        <Text style={authStyles.label}>Password</Text>
+        <View style={authStyles.passwordWrapper}>
           <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              borderRadius: 8,
-              padding: 12,
-              paddingRight: 50,
-              fontSize: 16,
-            }}
+            style={authStyles.inputPassword}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -109,7 +95,7 @@ export default function Register() {
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            style={{ position: 'absolute', right: 12, top: 12 }}
+            style={authStyles.eyeButton}
           >
             <Ionicons
               name={showPassword ? "eye-outline" : "eye-off-outline"}
@@ -120,38 +106,24 @@ export default function Register() {
         </View>
       </View>
 
-      {error && (
-        <Text style={{ color: 'red', marginBottom: 20, fontSize: 14 }}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={authStyles.error}>{error}</Text>}
 
       <TouchableOpacity
-        style={{
-          backgroundColor: '#007AFF',
-          padding: 16,
-          borderRadius: 8,
-          alignItems: 'center',
-          marginBottom: 20,
-        }}
+        style={authStyles.button}
         onPress={handleSignup}
         disabled={loading}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-            SIGN UP
-          </Text>
+          <Text style={authStyles.buttonText}>SIGN UP</Text>
         )}
       </TouchableOpacity>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 14 }}>Already have an account? </Text>
+      <View style={authStyles.loginRow}>
+        <Text style={authStyles.loginText}>Already have an account? </Text>
         <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 14 }}>
-            Log in
-          </Text>
+          <Text style={authStyles.loginLink}>Log in</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>

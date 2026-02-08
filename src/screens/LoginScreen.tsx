@@ -9,8 +9,15 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/src/context/UserContext";
+import { useTheme } from "../context/ThemeContext";
+import { createScreenStyles } from "../styles/screens/screenStyles";
+import { createAuthStyles } from "../styles/screens/authStyles";
 
 export default function Login() {
+  const theme = useTheme();
+  const screenStyles = createScreenStyles(theme);
+  const authStyles = createAuthStyles(theme);
+
   const router = useRouter();
   const { login } = useUser();
 
@@ -20,7 +27,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // app/login.tsx
   const handleLogin = async () => {
     setError(null);
 
@@ -41,21 +47,13 @@ export default function Login() {
   };
 
   return (
-    <View style={{ flex: 1, padding: 20, justifyContent: 'center', backgroundColor: '#fff' }}>
-      <Text style={{ fontSize: 32, fontWeight: 'bold', marginBottom: 40 }}>
-        Welcome Back!
-      </Text>
+    <View style={authStyles.container}>
+      <Text style={authStyles.title}>Welcome Back!</Text>
 
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ marginBottom: 8, fontSize: 14 }}>Email</Text>
+      <View style={authStyles.inputGroup}>
+        <Text style={authStyles.label}>Email</Text>
         <TextInput
-          style={{
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 8,
-            padding: 12,
-            fontSize: 16,
-          }}
+          style={authStyles.input}
           value={email}
           onChangeText={setEmail}
           autoCapitalize="none"
@@ -65,18 +63,11 @@ export default function Login() {
         />
       </View>
 
-      <View style={{ marginBottom: 20 }}>
-        <Text style={{ marginBottom: 8, fontSize: 14 }}>Password</Text>
-        <View style={{ position: 'relative' }}>
+      <View style={authStyles.inputGroup}>
+        <Text style={authStyles.label}>Password</Text>
+        <View style={authStyles.passwordWrapper}>
           <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: '#ccc',
-              borderRadius: 8,
-              padding: 12,
-              paddingRight: 50,
-              fontSize: 16,
-            }}
+            style={authStyles.inputPassword}
             value={password}
             onChangeText={setPassword}
             secureTextEntry={!showPassword}
@@ -87,49 +78,35 @@ export default function Login() {
           />
           <TouchableOpacity
             onPress={() => setShowPassword(!showPassword)}
-            style={{ position: 'absolute', right: 12, top: 12 }}
+            style={authStyles.eyeButton}
           >
             <Ionicons
               name={showPassword ? "eye-outline" : "eye-off-outline"}
               size={22}
-              color="#666"
+              color={theme.colors.textSecondary}
             />
           </TouchableOpacity>
         </View>
       </View>
 
-      {error && (
-        <Text style={{ color: 'red', marginBottom: 20, fontSize: 14 }}>
-          {error}
-        </Text>
-      )}
+      {error && <Text style={authStyles.error}>{error}</Text>}
 
       <TouchableOpacity
-        style={{
-          backgroundColor: '#007AFF',
-          padding: 16,
-          borderRadius: 8,
-          alignItems: 'center',
-          marginBottom: 20,
-        }}
+        style={authStyles.button}
         onPress={handleLogin}
         disabled={loading}
       >
         {loading ? (
           <ActivityIndicator color="#fff" />
         ) : (
-          <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>
-            LOG IN
-          </Text>
+          <Text style={authStyles.buttonText}>LOG IN</Text>
         )}
       </TouchableOpacity>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-        <Text style={{ fontSize: 14 }}>Don't have an account? </Text>
+      <View style={authStyles.loginRow}>
+        <Text style={authStyles.loginText}>Don't have an account? </Text>
         <TouchableOpacity onPress={() => router.push('/register')}>
-          <Text style={{ color: '#007AFF', fontWeight: 'bold', fontSize: 14 }}>
-            Sign up
-          </Text>
+          <Text style={authStyles.loginLink}>Sign up</Text>
         </TouchableOpacity>
       </View>
     </View>

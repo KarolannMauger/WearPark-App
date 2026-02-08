@@ -8,13 +8,12 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "dev": "cross-env ENV_FILE=.env.development expo start",
+    "dev-tunnel": "cross-env ENV_FILE=.env.development expo start --tunnel",
     "dev:android": "cross-env ENV_FILE=.env.development expo start --android",
     "dev:ios": "cross-env ENV_FILE=.env.development expo start --ios",
-    
     "test": "cross-env ENV_FILE=.env.test expo start",
     "test:android": "cross-env ENV_FILE=.env.test expo start --android",
     "test:ios": "cross-env ENV_FILE=.env.test expo start --ios",
-    
     "prod:preview": "cross-env ENV_FILE=.env.production expo start"
   },
   "dependencies": {
@@ -38,6 +37,7 @@
     "react-native-screens": "~4.16.0"
   },
   "devDependencies": {
+    "@types/base64-js": "^1.3.2",
     "@types/react": "~19.1.0",
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",

@@ -1,5 +1,5 @@
 import { TouchableOpacity, Text } from "react-native";
-import { useTheme } from "../styles/theme";
+import { useTheme } from '../context/ThemeContext';
 import { createButtonStyles } from "../styles/components/buttonStyles";
 
 export default function Button({

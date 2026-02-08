@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useTheme } from "../styles/theme";
+import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import Button from '../components/Button';
 

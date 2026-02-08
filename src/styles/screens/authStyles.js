@@ -1,0 +1,78 @@
+import { StyleSheet } from "react-native";
+
+export const createAuthStyles = (theme) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: '#fff',
+        },
+        contentContainer: {
+            padding: 20,
+            justifyContent: 'center',
+            minHeight: '100%',
+        },
+        title: {
+            fontSize: 32,
+            fontWeight: 'bold',
+            marginBottom: 40,
+        },
+        inputGroup: {
+            marginBottom: 20,
+        },
+        label: {
+            marginBottom: 8,
+            fontSize: 14,
+        },
+        input: {
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            fontSize: 16,
+        },
+        passwordWrapper: {
+            position: 'relative',
+        },
+        inputPassword: {
+            borderWidth: 1,
+            borderColor: '#ccc',
+            borderRadius: 8,
+            padding: 12,
+            paddingRight: 50,
+            fontSize: 16,
+        },
+        eyeButton: {
+            position: 'absolute',
+            right: 12,
+            top: 12,
+        },
+        error: {
+            color: 'red',
+            marginBottom: 20,
+            fontSize: 14,
+        },
+        button: {
+            backgroundColor: '#007AFF',
+            padding: 16,
+            borderRadius: 8,
+            alignItems: 'center',
+            marginBottom: 20,
+        },
+        buttonText: {
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: 16,
+        },
+        loginRow: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+        },
+        loginText: {
+            fontSize: 14,
+        },
+        loginLink: {
+            color: '#007AFF',
+            fontWeight: 'bold',
+            fontSize: 14,
+        },
+    });
