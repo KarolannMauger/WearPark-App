@@ -60,10 +60,8 @@ export default function Register() {
   };
 
   return (
-    <ScrollView
+    <View
       style={authStyles.container}
-      contentContainerStyle={authStyles.contentContainer}
-      keyboardShouldPersistTaps="handled"
     >
       <Text style={authStyles.title}>Create an account</Text>
 
@@ -126,6 +124,6 @@ export default function Register() {
           <Text style={authStyles.loginLink}>Log in</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 }

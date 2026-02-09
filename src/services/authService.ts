@@ -1,4 +1,3 @@
-// src/services/authService.ts
 import { publicApiClient } from './api';
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';

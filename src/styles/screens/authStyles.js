@@ -4,6 +4,8 @@ export const createAuthStyles = (theme) =>
     StyleSheet.create({
         container: {
             flex: 1,
+            padding: 20,
+            justifyContent: 'center',
             backgroundColor: '#fff',
         },
         contentContainer: {
