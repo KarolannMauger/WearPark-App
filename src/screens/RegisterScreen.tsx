@@ -6,7 +6,6 @@ import { useUser } from "@/src/context/UserContext";
 import { authService } from "@/src/services/authService";
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
-import { createMotionStyles } from '../styles/screens/motionStyle';
 import { createAuthStyles } from "../styles/screens/authStyles";
 
 export default function Register() {
