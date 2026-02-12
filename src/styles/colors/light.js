@@ -1,8 +1,8 @@
 export const lightColors = {
     // Color Palette
-    primary: '#006989',
-    secondary: '#007EA7',
-    accent: '#199BBB',
+    primary: '#820D0B',
+    secondary: '#994D52',
+    // accent: '#199BBB',
 
     // Background
     background: '#FCF7F7',
@@ -17,6 +17,9 @@ export const lightColors = {
     textSecondary: '#994D4D',
     textDisabled: '#C7C7CC',
     textButton: '#FFFFFF',
+
+    // Button
+    btnOutline: '#E8D1D1',
 
     // States
     success: '#2d7c41ff',

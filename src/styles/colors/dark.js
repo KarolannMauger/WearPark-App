@@ -2,7 +2,7 @@ export const darkColors = {
     // Color Palette
     primary: '#00809D',
     secondary: '#007EA7',
-    accent: '#094B6B',
+    // accent: '#094B6B',
 
     // Background
     background: '#171212',
@@ -17,6 +17,9 @@ export const darkColors = {
     textSecondary: '#BA9E9E',
     textDisabled: '#5C6B7A',
     textButton: '#FFFFFF',
+
+    // Button
+    btnOutline: '#E8D1D1',
 
     // States
     success: '#5bb471',
