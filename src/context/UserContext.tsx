@@ -27,11 +27,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    const inPublicRoute = segments[0] === 'login' || segments[0] === 'register';
+    const isWelcome = !segments[0] || segments[0] === 'index';
+    const isAuth = segments[0] === 'login' || segments[0] === 'register';
 
-    if (!user && !inPublicRoute) {
-      router.replace('/login');
-    } else if (user && inPublicRoute) {
+    // Ne rien faire si sur welcome
+    if (isWelcome) return;
+
+    // Rediriger uniquement sur les autres routes
+    if (!user && !isAuth) {
+      router.replace('/');  // Retour vers welcome
+    } else if (user && isAuth) {
       router.replace('/(tabs)/home');
     }
   }, [user, segments, isLoading]);

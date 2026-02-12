@@ -4,14 +4,10 @@ export const createAuthStyles = (theme) =>
     StyleSheet.create({
         container: {
             flex: 1,
-            padding: 20,
-            justifyContent: 'center',
-            backgroundColor: '#fff',
-        },
-        contentContainer: {
-            padding: 20,
-            justifyContent: 'center',
-            minHeight: '100%',
+            padding: theme.spacing.xl,
+            backgroundColor: theme.colors.background,
+            borderTopStartRadius: 20,
+            borderTopEndRadius: 20,
         },
         title: {
             fontSize: 32,
@@ -54,7 +50,7 @@ export const createAuthStyles = (theme) =>
             fontSize: 14,
         },
         button: {
-            backgroundColor: '#007AFF',
+            backgroundColor: theme.colors.primary,
             padding: 16,
             borderRadius: 8,
             alignItems: 'center',
@@ -73,8 +69,9 @@ export const createAuthStyles = (theme) =>
             fontSize: 14,
         },
         loginLink: {
-            color: '#007AFF',
+            color: theme.colors.primary,
             fontWeight: 'bold',
             fontSize: 14,
+            textAlign: 'right',
         },
     });

@@ -6,15 +6,9 @@ export const createScreenStyles = (theme) => StyleSheet.create({
     backgroundColor: theme.colors.background,
     padding: theme.spacing.xl,
   },
-  gradientContainer: {
-    flex: 1,
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.xl,
-  },
   redContainer: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.xl,
+    backgroundColor: theme.colors.primary,
   },
   containerNoPadding: {
     flex: 1,

@@ -36,6 +36,6 @@ export const lightColors = {
     black: '#000000',
 
     gradients: {
-        background: ['#1CA9C9', '#001F3F']
+        background: ['#820D0B', '#FCF7F7']
     },
 };

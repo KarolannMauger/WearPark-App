@@ -8,7 +8,7 @@ import { useUser } from "@/src/context/UserContext";
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { user} = useUser();
+  const { user } = useUser();
 
   const theme = useTheme();
   const screenStyles = createScreenStyles(theme);
@@ -27,7 +27,7 @@ export default function ProfileScreen() {
           color={theme.colors.textPrimary}
         />
       </TouchableOpacity>
-      
+
       <Text style={{ color: theme.colors.textPrimary, ...theme.typography.h1 }}>
         Profil
       </Text>
