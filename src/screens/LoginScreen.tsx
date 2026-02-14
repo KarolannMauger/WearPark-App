@@ -1,17 +1,12 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator, Image
-} from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/src/context/UserContext";
 import { useTheme } from "../context/ThemeContext";
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createAuthStyles } from "../styles/screens/authStyles";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BackHeader from "../components/BackHeader";
 
 export default function Login() {
@@ -49,76 +44,90 @@ export default function Login() {
 
   return (
     <View style={screenStyles.redContainer}>
-      <View style={{ height: 300,  alignItems: 'center' }}>
-        {/* <BackHeader title="Connexion"/> */}
-        <Image
-          source={require('../../assets/images/wearkpark-logo-white.png')}
-          style={{ width: '80%', height: 60 }}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={authStyles.container}>
-        <View style={authStyles.inputGroup}>
-          <Text style={authStyles.label}>Email</Text>
-          <TextInput
-            style={authStyles.input}
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            placeholder="Enter your email"
-            returnKeyType="next"
+      <KeyboardAwareScrollView
+        contentContainerStyle={{
+          flexGrow: 1,
+        }}
+        enableOnAndroid={true}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={{ height: 300, paddingHorizontal: 20 }}>
+          <BackHeader title="Connexion" goTo="/home" color="#fff" />
+          <Image
+            source={require('../../assets/images/wearpark-logo-rounded.png')}
+            style={{ height:80, alignSelf: 'center', marginTop: 20 }}
+            resizeMode="contain"
+          />
+          <Image
+            source={require('../../assets/images/wearkpark-title-white.png')}
+            style={{ height:36, alignSelf: 'center', marginTop: 10 }}
+            resizeMode="contain"
           />
         </View>
 
-        <View style={authStyles.inputGroup}>
-          <Text style={authStyles.label}>Password</Text>
-          <View style={authStyles.passwordWrapper}>
+        <View style={authStyles.container}>
+          <View style={authStyles.inputGroup}>
+            <Text style={authStyles.label}>Email</Text>
             <TextInput
-              style={authStyles.inputPassword}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={!showPassword}
-              placeholder="Enter your password"
+              style={authStyles.input}
+              value={email}
+              onChangeText={setEmail}
               autoCapitalize="none"
-              returnKeyType="done"
-              onSubmitEditing={handleLogin}
+              keyboardType="email-address"
+              placeholder="Enter your email"
+              returnKeyType="next"
             />
-            <TouchableOpacity
-              onPress={() => setShowPassword(!showPassword)}
-              style={authStyles.eyeButton}
-            >
-              <Ionicons
-                name={showPassword ? "eye-outline" : "eye-off-outline"}
-                size={22}
-                color={theme.colors.textSecondary}
+          </View>
+
+          <View style={authStyles.inputGroup}>
+            <Text style={authStyles.label}>Password</Text>
+            <View style={authStyles.passwordWrapper}>
+              <TextInput
+                style={authStyles.inputPassword}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                placeholder="Enter your password"
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
               />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={authStyles.eyeButton}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {error && <Text style={authStyles.error}>{error}</Text>}
+
+          <TouchableOpacity
+            style={authStyles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={authStyles.buttonText}>LOG IN</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={authStyles.loginRow}>
+            <Text style={authStyles.loginText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => router.push('/register')}>
+              <Text style={authStyles.loginLink}>Sign up</Text>
             </TouchableOpacity>
           </View>
         </View>
-
-        {error && <Text style={authStyles.error}>{error}</Text>}
-
-        <TouchableOpacity
-          style={authStyles.button}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={authStyles.buttonText}>LOG IN</Text>
-          )}
-        </TouchableOpacity>
-
-        <View style={authStyles.loginRow}>
-          <Text style={authStyles.loginText}>Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/register')}>
-            <Text style={authStyles.loginLink}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

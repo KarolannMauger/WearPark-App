@@ -35,6 +35,7 @@ export default function WelcomeScreen() {
                 </View>
                 <Button title="Se connecter" onPress={() => router.push("/login")} style={undefined} textStyle={undefined} />
                 <Button title="S'inscrire" onPress={() => router.push("/register")} style={undefined} textStyle={undefined} />
+                <Button title="temp test" onPress={() => router.push("/completeProfile")} style={undefined} textStyle={undefined} />
             </LinearGradient>
         </View>
     );

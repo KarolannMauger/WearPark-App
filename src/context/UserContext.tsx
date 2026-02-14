@@ -1,20 +1,36 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '@/src/services/authService';
 import { View, ActivityIndicator } from 'react-native';
 
+export interface User {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  dateOfBirth?: string;
+  hasDiagnostic?: boolean;
+  disease?: string;
+  preferences?: {
+    monthlyReportEmail: boolean;
+    reportRecipients: string[];
+  };
+}
+
 interface UserContextType {
-  user: { email: string } | null;
+  user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
@@ -27,15 +43,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
+    return;
+
     const isWelcome = !segments[0] || segments[0] === 'index';
     const isAuth = segments[0] === 'login' || segments[0] === 'register';
+    const isCompleteProfile = segments[0] === 'complete-profile';
 
-    // Ne rien faire si sur welcome
-    if (isWelcome) return;
+    if (isWelcome || isCompleteProfile) return;
 
-    // Rediriger uniquement sur les autres routes
     if (!user && !isAuth) {
-      router.replace('/');  // Retour vers welcome
+      router.replace('/');
     } else if (user && isAuth) {
       router.replace('/(tabs)/home');
     }
@@ -57,10 +74,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<void> => {
+    console.log('🎯 UserContext.login called with:', email);
+    
     try {
       await authService.login(email, password);
-
-      setUser({ email });
+      
+      const storedUser = await authService.getStoredUser();
+      
+      setUser(storedUser);
     } catch (error) {
       console.error('❌ Login error in UserContext:', error);
       throw error;
@@ -72,6 +93,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(null);
   };
 
+  const updateUser = async (userData: Partial<User>): Promise<void> => {
+    console.log('🔄 UserContext.updateUser called');
+    
+    const updatedUser = { ...user, ...userData } as User;
+    setUser(updatedUser);
+    
+    await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+  };
+
   if (isLoading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -81,7 +111,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+    <UserContext.Provider value={{ user, isLoading, login, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

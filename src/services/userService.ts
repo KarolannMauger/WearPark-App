@@ -1,19 +1,34 @@
 import { privateApiClient } from './api';
+import { UserProfileData } from '@/src/components/UserProfileForm';
 
-interface User {
+export interface User {
   id: string;
-  name: string;
+  firstName?: string;
+  lastName?: string;
   email: string;
+  dateOfBirth?: string;
+  hasDiagnostic?: boolean;
+  disease?: string;
+  preferences?: {
+    monthlyReportEmail: boolean;
+    reportRecipients: string[];
+  };
 }
 
-// GET PROFILE - Private (token requis)
-export const getUserProfile = async (): Promise<User> => {
-  const response = await privateApiClient.get<User>('/user/profile');
-  return response.data;
-};
+export const userService = {
+  getProfile: async (): Promise<User> => {
+    const response = await privateApiClient.get<User>('/users/profile');
 
-// UPDATE PROFILE - Private
-export const updateProfile = async (data: Partial<User>) => {
-  const response = await privateApiClient.put('/user/profile', data);
-  return response.data;
+    return response.data;
+  },
+
+  updateProfile: async (data: Partial<UserProfileData>): Promise<User> => {
+    const response = await privateApiClient.put<User>('/users/profile', data);
+
+    return response.data;
+  },
+
+  deleteAccount: async (): Promise<void> => {
+    await privateApiClient.delete('/users/profile');
+  },
 };
