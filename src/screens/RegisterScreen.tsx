@@ -16,7 +16,7 @@ export default function Register() {
   const authStyles = createAuthStyles(theme);
 
   const router = useRouter();
-  const { login } = useUser();
+  const { register } = useUser();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,8 +32,8 @@ export default function Register() {
       return;
     }
 
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
       return;
     }
 
@@ -42,13 +42,10 @@ export default function Register() {
     try {
       const trimmedEmail = email.toLowerCase().trim();
 
-      await authService.register({
-        email: trimmedEmail,
-        password: password,
-      });
-
-      // logs in after signup to eventually fill user form
-      await login(trimmedEmail, password);
+      // Appeler register du contexte (qui redirige automatiquement)
+      await register(trimmedEmail, password);
+      
+      // Pas besoin de router.replace ici, c'est fait dans le contexte
     } catch (err: any) {
       setError(
         err?.response?.data?.message ||

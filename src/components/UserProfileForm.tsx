@@ -4,7 +4,7 @@ import { View, Text, TextInput, ScrollView, TouchableOpacity, Platform, } from "
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { createUserFormStyles } from "../styles/screens/userFormStyles";
+import { createUserFormStyles } from "../styles/components/userFormStyles";
 import Button from "./Button";
 
 export interface UserProfileData {
@@ -25,6 +25,7 @@ interface UserProfileFormProps {
     onSubmit: (data: UserProfileData) => Promise<void>;
     submitButtonText?: string;
     isLoading?: boolean;
+    emailEditable?: boolean;
 }
 
 const DISEASES = [
@@ -35,12 +36,7 @@ const DISEASES = [
     "Autre",
 ];
 
-export default function UserProfileForm({
-    initialData,
-    onSubmit,
-    submitButtonText = "Enregistrer",
-    isLoading = false,
-}: UserProfileFormProps) {
+export default function UserProfileForm({ initialData, onSubmit, submitButtonText = "Enregistrer", isLoading = false, emailEditable = true, }: UserProfileFormProps) {
     const theme = useTheme();
     const userFormStyles = createUserFormStyles(theme);
 
@@ -122,29 +118,29 @@ export default function UserProfileForm({
             showsVerticalScrollIndicator={false}
         >
             {/* Informations de base */}
-            <Text style={userFormStyles.sectionTitle}>Informations personnelles</Text>
+            <Text style={theme.typography.h3}>Informations personnelles</Text>
 
-            <Text style={userFormStyles.label}>Prénom *</Text>
+            <Text style={theme.typography.inputLabel}>Prénom *</Text>
             <TextInput
                 value={firstName}
                 onChangeText={setFirstName}
                 placeholder="Prénom"
-                placeholderTextColor={theme.colors.textSecondary}
+                placeholderTextColor={theme.colors.placeholder}
                 style={userFormStyles.input}
                 editable={!isLoading}
             />
 
-            <Text style={userFormStyles.label}>Nom *</Text>
+            <Text style={theme.typography.inputLabel}>Nom *</Text>
             <TextInput
                 value={lastName}
                 onChangeText={setLastName}
                 placeholder="Nom"
-                placeholderTextColor={theme.colors.textSecondary}
+                placeholderTextColor={theme.colors.placeholder}
                 style={userFormStyles.input}
                 editable={!isLoading}
             />
 
-            <Text style={userFormStyles.label}>Date de naissance *</Text>
+            <Text style={theme.typography.inputLabel}>Date de naissance *</Text>
             <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
                 disabled={isLoading}
@@ -175,20 +171,23 @@ export default function UserProfileForm({
                 </TouchableOpacity>
             )}
 
-            <Text style={userFormStyles.label}>Courriel *</Text>
+            <Text style={theme.typography.inputLabel}>Courriel *</Text>
             <TextInput
                 value={email}
                 onChangeText={setEmail}
                 placeholder="exemple@email.com"
                 keyboardType="email-address"
                 autoCapitalize="none"
-                placeholderTextColor={theme.colors.textSecondary}
-                style={userFormStyles.input}
-                editable={!isLoading}
+                placeholderTextColor={theme.colors.placeholder}
+                style={[
+                    userFormStyles.input,
+                    !emailEditable && userFormStyles.inputDisabled
+                ]}
+                editable={!isLoading && emailEditable}
             />
 
             {/* Diagnostic */}
-            <Text style={[userFormStyles.sectionTitle, { marginTop: 30 }]}>
+            <Text style={theme.typography.h3}>
                 Information médicale
             </Text>
 
@@ -199,14 +198,14 @@ export default function UserProfileForm({
                     disabled={isLoading}
                     color={hasDiagnostic ? theme.colors.primary : undefined}
                 />
-                <Text style={userFormStyles.checkboxLabel}>
+                <Text style={theme.typography.checkboxLabel}>
                     J'ai un diagnostic
                 </Text>
             </View>
 
             {hasDiagnostic && (
                 <>
-                    <Text style={userFormStyles.label}>Maladie</Text>
+                    <Text style={theme.typography.inputLabel}>Maladie</Text>
                     <View style={userFormStyles.pickerContainer}>
                         <Picker
                             selectedValue={disease}
@@ -223,7 +222,7 @@ export default function UserProfileForm({
             )}
 
             {/* Préférences */}
-            <Text style={[userFormStyles.sectionTitle, { marginTop: 30 }]}>
+            <Text style={theme.typography.h3}>
                 Préférences
             </Text>
 
@@ -234,14 +233,14 @@ export default function UserProfileForm({
                     disabled={isLoading}
                     color={monthlyReport ? theme.colors.primary : undefined}
                 />
-                <Text style={userFormStyles.checkboxLabel}>
+                <Text style={theme.typography.checkboxLabel}>
                     Recevoir un rapport mensuel par courriel
                 </Text>
             </View>
 
             {monthlyReport && (
                 <>
-                    <Text style={userFormStyles.label}>
+                    <Text style={theme.typography.inputLabel}>
                         Courriel(s) destinataire(s) (séparés par des virgules)
                     </Text>
                     <TextInput
@@ -250,7 +249,7 @@ export default function UserProfileForm({
                         placeholder="email1@example.com, email2@example.com"
                         keyboardType="email-address"
                         autoCapitalize="none"
-                        placeholderTextColor={theme.colors.textSecondary}
+                        placeholderTextColor={theme.colors.placeholder}
                         style={userFormStyles.input}
                         editable={!isLoading}
                     />
@@ -259,13 +258,13 @@ export default function UserProfileForm({
 
             {/* Erreur */}
             {error && (
-                <View style={userFormStyles.errorContainer}>
+                <View>
                     <Text style={userFormStyles.errorText}>{error}</Text>
                 </View>
             )}
 
             {/* Bouton submit */}
-            <View style={{ marginTop: 30 }}>
+            <View style={{ marginTop: 20 }}>
                 <Button
                     onPress={handleSubmit}
                     title={isLoading ? "Chargement..." : submitButtonText}

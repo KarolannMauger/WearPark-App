@@ -1,46 +1,48 @@
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, Alert, Text } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import UserProfileForm, { UserProfileData } from '../components/UserProfileForm';
 import { userService } from '../services/userService';
 import { useUser } from '../context/UserContext';
 import { useTheme } from '../context/ThemeContext';
+import { createScreenStyles } from '../styles/screens/screenStyles';
 
 export default function CompleteProfileScreen() {
   const router = useRouter();
-  const { updateUser } = useUser();
+  const { user, updateUser } = useUser();
   const theme = useTheme();
+  const screenStyles = createScreenStyles(theme);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (data: UserProfileData) => {
     setIsLoading(true);
-    
+
     try {
       // MODE SIMULATION - Commentez cette section quand l'API est prête
       console.log('📝 Données du formulaire (simulé):', data);
-      
+
       // Simuler un délai d'API
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
+
       // Simuler la réponse de l'API
       const mockProfile = {
         id: 'mock-id-123',
         ...data,
       };
-      
+
       // Mettre à jour le contexte utilisateur
       await updateUser(mockProfile);
-      
+
       Alert.alert('Succès', 'Profil sauvegardé (mode simulation)');
-      
+
       // Rediriger vers home
       router.replace('/(tabs)/home');
-      
+
       // MODE PRODUCTION - Décommentez quand l'API est prête
       // const updatedProfile = await userService.updateProfile(data);
       // await updateUser(updatedProfile);
       // router.replace('/(tabs)/home');
-      
+
     } catch (error) {
       console.error('Error saving profile:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder le profil (simulé)');
@@ -51,18 +53,21 @@ export default function CompleteProfileScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
+    <View style={[screenStyles.container, { paddingTop: 60 }]}>
+      <Text style={theme.typography.h2}>Veuillez compléter votre profil</Text>
+      <Text style={[theme.typography.bodySmall, { marginBottom: 6 }]}>
+        Afin de nous aidez à personnaliser votre expérience, veuillez remplir les champs suivant.
+      </Text>
+      <Text style={[theme.typography.bodySmall, { marginBottom: 20 }]}>
+        Vous pourrez modifier ces informations dans la section profil par la suite.
+      </Text>
       <UserProfileForm
+        initialData={{ email: user?.email }}
         onSubmit={handleSubmit}
         submitButtonText="Continuer"
         isLoading={isLoading}
+        emailEditable={false}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});

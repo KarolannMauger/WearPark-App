@@ -27,8 +27,4 @@ export const userService = {
 
     return response.data;
   },
-
-  deleteAccount: async (): Promise<void> => {
-    await privateApiClient.delete('/users/profile');
-  },
 };

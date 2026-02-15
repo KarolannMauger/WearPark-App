@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
@@ -15,6 +15,9 @@ export default function HomeScreen() {
       <Text style={{ color: theme.colors.textPrimary, ...theme.typography.h1 }}>
         Accueil
       </Text>
+      <TouchableOpacity onPress={() => router.push("/completeProfile")}>
+        <Text> form</Text>
+      </TouchableOpacity>
     </View>
   );
 }
