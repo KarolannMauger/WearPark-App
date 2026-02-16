@@ -1,179 +1,274 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ActivityIndicator,
-  ScrollView,
-} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Alert, Platform, } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
-import { createMotionStyles } from '../styles/screens/motionStyle';
-import { Ionicons } from '@expo/vector-icons';
-import { motionService, MotionDataDecoded } from '@/src/services/motionService';
+import { createMotionStyles } from '../styles/screens/motionStyles';
+import { MaterialIcons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
-export default function MotionScreen() {
+interface Report {
+  id: string;
+  startDate: string;
+  endDate: string;
+  generatedAt: Date;
+}
+
+export default function ReportsScreen() {
   const theme = useTheme();
   const screenStyles = createScreenStyles(theme);
   const motionStyles = createMotionStyles(theme);
 
-  const [allData, setAllData] = useState<MotionDataDecoded[]>([]);
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [showStartPicker, setShowStartPicker] = useState(false);
+  const [showEndPicker, setShowEndPicker] = useState(false);
+
   const [loading, setLoading] = useState(false);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
 
-  const [startDate, setStartDate] = useState('2026-02-07');
-  const [startTime, setStartTime] = useState('17:44:42');
-  const [endDate, setEndDate] = useState('2026-02-08');
-  const [endTime, setEndTime] = useState('17:44:42');
+  useEffect(() => {
+    loadReports();
+  }, []);
 
-  const loadMotionData = async () => {
+  const loadReports = () => {
+    // ========== MODE SIMULATION ==========
+    const mockReports: Report[] = [
+      {
+        id: '1',
+        startDate: '2026-02-01',
+        endDate: '2026-02-07',
+        generatedAt: new Date('2026-02-08T10:30:00'),
+      },
+      {
+        id: '2',
+        startDate: '2026-01-15',
+        endDate: '2026-01-31',
+        generatedAt: new Date('2026-02-01T14:20:00'),
+      },
+      {
+        id: '3',
+        startDate: '2026-01-01',
+        endDate: '2026-01-14',
+        generatedAt: new Date('2026-01-15T09:15:00'),
+      },
+    ];
+    setReports(mockReports);
+
+    // ========== MODE RÉEL (à décommenter plus tard) ==========
+    // const savedReports = await reportsService.getAll();
+    // setReports(savedReports);
+  };
+
+  const formatDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const generateReport = async () => {
+    if (startDate > endDate) {
+      Alert.alert('Erreur', 'La date de début doit être avant la date de fin');
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const start = `${startDate}T${startTime}Z`;
-      const end = `${endDate}T${endTime}Z`;
-      const data = await motionService.getAll({ startDate: start, endDate: end });
-      setAllData(data);
+      // Simuler un délai de génération
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const start = formatDate(startDate);
+      const end = formatDate(endDate);
+
+      // ========== MODE SIMULATION ==========
+      Alert.alert(
+        'Rapport généré',
+        `Rapport du ${start} au ${end}\n\nCette fonctionnalité téléchargera le rapport une fois l'API connectée.`,
+        [{ text: 'OK' }]
+      );
+
+      // Ajouter le nouveau rapport à la liste
+      const newReport: Report = {
+        id: Date.now().toString(),
+        startDate: start,
+        endDate: end,
+        generatedAt: new Date(),
+      };
+      setReports([newReport, ...reports]);
+
+      // ========== MODE RÉEL (à décommenter plus tard) ==========
+      // const report = await reportsService.generate({ startDate: start, endDate: end });
+      // // Télécharger le fichier
+      // await FileSystem.downloadAsync(
+      //   report.downloadUrl,
+      //   FileSystem.documentDirectory + `rapport_${start}_${end}.pdf`
+      // );
+      // Alert.alert('Succès', 'Le rapport a été téléchargé');
+      // loadReports(); // Recharger la liste
     } catch (error) {
-      console.error('Error loading motion data:', error);
+      console.error('Error generating report:', error);
+      Alert.alert('Erreur', 'Impossible de générer le rapport');
     } finally {
       setLoading(false);
     }
   };
 
-  const loadLatest = async () => {
-    setLoading(true);
-    try {
-      const latest = await motionService.getLatest();
-      setAllData([latest]);
-    } catch (error) {
-      console.error('Error loading latest data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const toggleExpand = (id: string) => {
-    setExpandedId(expandedId === id ? null : id);
-  };
-
-  const renderItem = (item: MotionDataDecoded) => {
-    const isExpanded = expandedId === item.id;
-
-    return (
-      <View key={item.id} style={motionStyles.container}>
-        <TouchableOpacity
-          onPress={() => toggleExpand(item.id)}
-          style={motionStyles.resultHeader}
-        >
-          <View style={motionStyles.resultHeaderContent}>
-            <Text style={motionStyles.resultId}>ID: {item.id.slice(-8)}</Text>
-            <Text style={motionStyles.resultDate}>
-              {item.start.toLocaleString()} → {item.end.toLocaleString()}
-            </Text>
-            <Text style={motionStyles.resultSamples}>
-              Samples: {item.data.ax.length}
-            </Text>
-          </View>
-          <Ionicons
-            name={isExpanded ? 'chevron-up' : 'chevron-down'}
-            size={24}
-            color="#666"
-          />
-        </TouchableOpacity>
-
-        {isExpanded && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View style={motionStyles.expandedContent}>
-              {['ax','ay','az','gx','gy','gz'].map((axis) => (
-                <View style={motionStyles.dataRow} key={axis}>
-                  <Text style={motionStyles.dataLabel}>{axis}:</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator>
-                    <Text style={motionStyles.dataValues}>
-                      {`[${(item.data as any)[axis]
-                        .slice(0, 10)
-                        .map((v: number) => v.toFixed(4))
-                        .join(', ')}${(item.data as any)[axis].length > 10 ? `, ... +${(item.data as any)[axis].length - 10} more` : ''}]`}
-                    </Text>
-                  </ScrollView>
-                </View>
-              ))}
-            </View>
-          </ScrollView>
-        )}
-      </View>
+  const downloadReport = (report: Report) => {
+    // ========== MODE SIMULATION ==========
+    Alert.alert(
+      'Téléchargement',
+      `Téléchargement du rapport ${report.startDate} - ${report.endDate}\n\nCette fonctionnalité téléchargera le rapport une fois l'API connectée.`,
+      [{ text: 'OK' }]
     );
+
+    // ========== MODE RÉEL (à décommenter plus tard) ==========
+    // await reportsService.download(report.id);
+  };
+
+  const onStartDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowStartPicker(false);
+    }
+    if (selectedDate) {
+      setStartDate(selectedDate);
+    }
+  };
+
+  const onEndDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowEndPicker(false);
+    }
+    if (selectedDate) {
+      setEndDate(selectedDate);
+    }
   };
 
   return (
     <ScrollView style={screenStyles.container} showsVerticalScrollIndicator={false}>
-      <Text style={motionStyles.title}>Motion Data Filter</Text>
+      <Text style={screenStyles.pageTitle}>Rapports</Text>
+      <Text style={screenStyles.sectionTitle}>Générer un rapport</Text>
+      {/* Formulaire de génération */}
+      <View style={motionStyles.rowForm}>
+        <View style={motionStyles.formGroup}>
+          <Text style={motionStyles.label}>Date de début</Text>
+          <TouchableOpacity
+            onPress={() => setShowStartPicker(true)}
+            style={motionStyles.dateButton}
+          >
+            <Text style={motionStyles.dateButtonText}>
+              {formatDate(startDate)}
+            </Text>
+            <MaterialIcons name="calendar-today" size={20} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
 
-      <View style={motionStyles.formGroup}>
-        <Text style={motionStyles.label}>Start Date & Time</Text>
-        <View style={motionStyles.dateTimeRow}>
-          <TextInput
-            style={[motionStyles.input, motionStyles.dateInput]}
-            value={startDate}
-            onChangeText={setStartDate}
-            placeholder="YYYY-MM-DD"
-          />
-          <TextInput
-            style={[motionStyles.input, motionStyles.timeInput]}
-            value={startTime}
-            onChangeText={setStartTime}
-            placeholder="HH:MM:SS"
-          />
+          {showStartPicker && (
+            <DateTimePicker
+              value={startDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onStartDateChange}
+              maximumDate={new Date()}
+            />
+          )}
+
+          {Platform.OS === 'ios' && showStartPicker && (
+            <TouchableOpacity
+              onPress={() => setShowStartPicker(false)}
+              style={motionStyles.datePickerDone}
+            >
+              <Text style={motionStyles.datePickerDoneText}>Terminé</Text>
+            </TouchableOpacity>
+          )}
         </View>
-        <Text style={motionStyles.example}>Result: {startDate}T{startTime}Z</Text>
-      </View>
 
-      <View style={motionStyles.formGroup}>
-        <Text style={motionStyles.label}>End Date & Time</Text>
-        <View style={motionStyles.dateTimeRow}>
-          <TextInput
-            style={[motionStyles.input, motionStyles.dateInput]}
-            value={endDate}
-            onChangeText={setEndDate}
-            placeholder="YYYY-MM-DD"
-          />
-          <TextInput
-            style={[motionStyles.input, motionStyles.timeInput]}
-            value={endTime}
-            onChangeText={setEndTime}
-            placeholder="HH:MM:SS"
-          />
+        <View style={motionStyles.formGroup}>
+          <Text style={motionStyles.label}>Date de fin</Text>
+          <TouchableOpacity
+            onPress={() => setShowEndPicker(true)}
+            style={motionStyles.dateButton}
+          >
+            <Text style={motionStyles.dateButtonText}>
+              {formatDate(endDate)}
+            </Text>
+            <MaterialIcons name="calendar-today" size={20} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+
+          {showEndPicker && (
+            <DateTimePicker
+              value={endDate}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onEndDateChange}
+              maximumDate={new Date()}
+            />
+          )}
+
+          {Platform.OS === 'ios' && showEndPicker && (
+            <TouchableOpacity
+              onPress={() => setShowEndPicker(false)}
+              style={motionStyles.datePickerDone}
+            >
+              <Text style={motionStyles.datePickerDoneText}>Terminé</Text>
+            </TouchableOpacity>
+          )}
         </View>
-        <Text style={motionStyles.example}>Result: {endDate}T{endTime}Z</Text>
       </View>
 
-      <View style={motionStyles.buttonRow}>
-        <TouchableOpacity
-          style={[motionStyles.button, motionStyles.secondaryButton]}
-          onPress={loadLatest}
-          disabled={loading}
-        >
-          <Text style={motionStyles.secondaryButtonText}>Fetch Latest</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={[motionStyles.button, motionStyles.primaryButton]}
+        onPress={generateReport}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <>
+            <Text style={motionStyles.primaryButtonText}>Générer le rapport</Text>
+            <MaterialIcons name="file-download" size={20} color="#fff" style={{ marginLeft: theme.spacing.sm }} />
+          </>
+        )}
+      </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[motionStyles.button, motionStyles.primaryButton]}
-          onPress={loadMotionData}
-          disabled={loading}
-        >
-          {loading ? <ActivityIndicator color="#fff" /> : <Text style={motionStyles.primaryButtonText}>Fetch Range</Text>}
-        </TouchableOpacity>
-      </View>
-
-      <Text style={motionStyles.resultsTitle}>Results ({allData.length} items)</Text>
-
-      {allData.length === 0 && !loading && (
-        <Text style={motionStyles.emptyText}>
-          No data found. Try fetching latest or adjusting the date range.
+      {/* Liste des rapports précédents */}
+      <View style={{ marginTop: 40 }}>
+        <Text style={screenStyles.sectionTitle}>
+          Rapports précédents ({reports.length})
         </Text>
-      )}
 
-      {allData.map(item => renderItem(item))}
+        {reports.length === 0 ? (
+          <Text style={motionStyles.emptyText}>
+            Aucun rapport généré pour le moment
+          </Text>
+        ) : (
+          reports.map((report) => (
+            <View key={report.id} style={motionStyles.reportCard}>
+              <View style={motionStyles.reportHeader}>
+                <View>
+                  <Text style={motionStyles.reportTitle}>
+                    {report.startDate} → {report.endDate}
+                  </Text>
+                  <Text style={motionStyles.reportSubtitle}>
+                    Généré le {report.generatedAt.toLocaleDateString()} à{' '}
+                    {report.generatedAt.toLocaleTimeString()}
+                  </Text>
+                </View>
+
+                <TouchableOpacity
+                  onPress={() => downloadReport(report)}
+                  style={motionStyles.downloadButton}
+                >
+                  <MaterialIcons
+                    name="file-download"
+                    size={24}
+                    color={theme.colors.primary}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
+      </View>
     </ScrollView>
   );
 }

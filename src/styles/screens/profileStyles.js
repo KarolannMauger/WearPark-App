@@ -1,64 +1,22 @@
 import { StyleSheet } from "react-native";
+import { margin } from "../spacing";
 
 export const createProfileStyles = (theme) =>
   StyleSheet.create({
-    centerWrapper: {
-      flex: 1,
-      justifyContent: "center",
-    },
-    notAuthContainer: {
-      justifyContent: "center",
-      alignItems: "center",
-      padding: theme.spacing.lg,
-      backgroundColor: theme.colors.background,
-    },
-    notAuthIcon: {
-      marginBottom: theme.spacing.md,
-    },
-    notAuthTitle: {
-      ...theme.typography.h3,
-      color: theme.colors.textPrimary,
-      marginBottom: theme.spacing.sm,
-      textAlign: "center",
-    },
-    notAuthMessage: {
-      ...theme.typography.body,
-      color: theme.colors.textSecondary,
-      marginBottom: theme.spacing.lg,
-      textAlign: "center",
-    },
-    notAuthButton: {
-      backgroundColor: theme.colors.primary,
-      paddingVertical: theme.spacing.sm + 4,
-      paddingHorizontal: theme.spacing.xl,
-      borderRadius: theme.borderRadius.md,
-    },
-    notAuthButtonText: {
-      ...theme.typography.button,
-      color: theme.colors.white,
+    settingsDisplay: {
+      float: "right",
     },
     profileHeader: {
       alignItems: "center",
-      marginTop: theme.spacing.lg,
-    },
-    avatarContainer: {
-      position: "relative",
-      width: 96,
-      height: 96,
-      marginBottom: theme.spacing.md,
-    },
-    avatar: {
-      width: 96,
-      height: 96,
-      borderRadius: 48,
     },
     name: {
       ...theme.typography.h2,
       color: theme.colors.textPrimary,
+      marginTop: theme.spacing.sm,
     },
     email: {
       ...theme.typography.body,
-      color: theme.colors.textPrimary,
+      color: theme.colors.textSecondary,
       textDecorationLine: "underline",
       marginTop: 4,
     },
@@ -82,46 +40,5 @@ export const createProfileStyles = (theme) =>
     buttonText: {
       ...theme.typography.button,
       color: theme.colors.white,
-    },
-    bioContainer: {
-      marginTop: theme.spacing.lg,
-    },
-    bio: {
-      ...theme.typography.bodySmall,
-      color: theme.colors.textSecondary,
-      lineHeight: 20,
-    },
-    bioInterest: {
-      ...theme.typography.bodySmall,
-      color: theme.colors.textSecondary,
-      lineHeight: 20,
-      marginTop: 8,
-    },
-    sectionList: {
-      marginTop: theme.spacing.xl,
-      backgroundColor: theme.colors.card,
-      borderRadius: theme.borderRadius.lg,
-      paddingHorizontal: theme.spacing.lg,
-      paddingVertical: theme.spacing.sm,
-    },
-    row: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      paddingVertical: theme.spacing.md,
-    },
-    rowLeft: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 12,
-    },
-    rowText: {
-      ...theme.typography.body,
-      color: theme.colors.textPrimary,
-      marginLeft: 12,
-    },
-    divider: {
-      height: 1,
-      backgroundColor: theme.colors.textDisabled,
     },
   });

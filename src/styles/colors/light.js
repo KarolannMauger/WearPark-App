@@ -3,14 +3,14 @@ export const lightColors = {
     primary: '#820D0B',
     secondary: '#994D52',
     disabled: '#eeebec',
-    // accent: '#199BBB',
+    accent: '#17a6ca',
 
     // Background
     background: '#FCF7F7',
     tabBackground: '#F2E8E8',
     auth: '#FFFFFF',
     card: '#F2E8E8',
-    tag: '#EDEDED',
+    chartBackground: '#ffffff',
     bar: '#FFFFFF',
 
     // Text

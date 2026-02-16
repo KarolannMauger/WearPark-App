@@ -4,7 +4,7 @@ import { useUser } from "../context/UserContext";
 import { View, Text, TouchableOpacity, Switch, Alert } from "react-native";
 import BackHeader from "../components/BackHeader";
 import { Ionicons } from "@expo/vector-icons";
-import { createSettingsStyles } from "../styles/screens/settingsStyle";
+import { createSettingsStyles } from "../styles/screens/settingsStyles";
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -52,7 +52,7 @@ export default function SettingsScreen() {
               theme.mode === "dark" ? theme.colors.secondary : theme.colors.white
             }
             trackColor={{
-              false: theme.colors.tag,
+              false: theme.colors.secondary,
               true: theme.colors.secondary + 80,
             }}
           />
