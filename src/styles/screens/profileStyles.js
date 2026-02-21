@@ -1,5 +1,4 @@
 import { StyleSheet } from "react-native";
-import { margin } from "../spacing";
 
 export const createProfileStyles = (theme) =>
   StyleSheet.create({
@@ -8,6 +7,7 @@ export const createProfileStyles = (theme) =>
     },
     profileHeader: {
       alignItems: "center",
+      paddingBottom: theme.spacing.xxl,
     },
     name: {
       ...theme.typography.h2,

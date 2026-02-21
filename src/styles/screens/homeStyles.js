@@ -6,6 +6,7 @@ export const createHomeStyles = (theme) =>
             flexDirection: 'row',
             justifyContent: 'space-between',
             gap: theme.spacing.md,
+            marginBottom: theme.spacing.md,
         },
         cardContainer: {
             backgroundColor: theme.colors.card,
@@ -20,7 +21,32 @@ export const createHomeStyles = (theme) =>
             lineHeight: theme.typography.sizes.xxl,
         },
         info: {
-            ...theme.typography.h1,
-            color: theme.colors.textPrimary
+            ...theme.typography.h2,
+            color: theme.colors.textPrimary,
+            marginBottom: theme.spacing.xs,
+        },
+        legendRow: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            marginTop: 12,
+            marginBottom: 16,
+        },
+        legendItem: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 8,
+        },
+        line: {
+            width: 20,
+            height: 3,
+            borderRadius: 2,
+        },
+        legendText: {
+            fontSize: 12,
+            color: theme.colors.textSecondary,
+        },
+        cardSubtitle: {
+            fontSize: 12,
+            color: theme.colors.textSecondary,
         },
     });

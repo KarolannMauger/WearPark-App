@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, ActivityIndicator, Dimensions, } from 'react-native';
+import { View, Text, ScrollView, useWindowDimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { Calendar } from 'react-native-calendars';
-import { LineChart } from 'react-native-gifted-charts';
 import { createDataHistoryStyles } from '../styles/screens/dataHistoryStyles';
 import { MotionDataDecoded } from '@/src/services/motionService';
+import LoadingView from '../components/LoadingView';
+import MotionChart from '../components/MotionChart';
 
 interface EpisodeData {
     date: string;
@@ -24,45 +25,37 @@ const generateMockMotionData = (date: string): MotionDataDecoded => {
     const gy: number[] = [];
     const gz: number[] = [];
 
-    // Paramètres pour simuler des tremblements Parkinsoniens
-    const trembleFrequency = 4.5; // 4-6 Hz typique pour Parkinson
-    const timeStep = 0.01; // 100 Hz sampling rate
+    const trembleFrequency = 4.5;
+    const timeStep = 0.01;
 
     for (let i = 0; i < numSamples; i++) {
         const t = i * timeStep;
-        
-        // Générer des périodes de calme et de tremblement
-        const tremblePhase = Math.sin(t * 0.5); // Période longue pour alternance calme/tremblement
-        const isActive = tremblePhase > -0.3; // 65% du temps avec tremblements
-        
+        const tremblePhase = Math.sin(t * 0.5);
+        const isActive = tremblePhase > -0.3;
+
         if (isActive) {
-            // Phase de tremblement - oscillations rythmiques à ~4.5 Hz
-            const trembleAmplitude = (0.5 + Math.random() * 0.5); // Amplitude variable
-            const noise = (Math.random() - 0.5) * 0.3; // Bruit léger
-            
-            // Accéléromètre - tremblements oscillatoires
+            const trembleAmplitude = (0.5 + Math.random() * 0.5);
+            const noise = (Math.random() - 0.5) * 0.3;
+
             ax.push(trembleAmplitude * Math.sin(2 * Math.PI * trembleFrequency * t) + noise);
             ay.push(trembleAmplitude * Math.cos(2 * Math.PI * trembleFrequency * t + 0.5) + noise);
             az.push(9.8 + trembleAmplitude * 0.5 * Math.sin(2 * Math.PI * trembleFrequency * t + 1) + noise);
-            
-            // Gyroscope - rotation rythmique
+
             gx.push(trembleAmplitude * 0.4 * Math.sin(2 * Math.PI * trembleFrequency * t));
             gy.push(trembleAmplitude * 0.4 * Math.cos(2 * Math.PI * trembleFrequency * t));
             gz.push(trembleAmplitude * 0.3 * Math.sin(2 * Math.PI * trembleFrequency * t + 0.8));
         } else {
-            // Phase de repos - valeurs stables avec micro-mouvements
             const microNoise = (Math.random() - 0.5) * 0.1;
-            
+
             ax.push(microNoise);
             ay.push(microNoise * 0.8);
-            az.push(9.8 + microNoise * 0.5); // Gravité stable
-            
+            az.push(9.8 + microNoise * 0.5);
+
             gx.push(microNoise * 0.05);
             gy.push(microNoise * 0.05);
             gz.push(microNoise * 0.05);
         }
-        
-        // Ajouter des pics soudains occasionnels (10% du temps)
+
         if (Math.random() > 0.9) {
             const spike = (Math.random() - 0.5) * 2;
             ax[ax.length - 1] += spike;
@@ -72,7 +65,7 @@ const generateMockMotionData = (date: string): MotionDataDecoded => {
     }
 
     const startTime = new Date(`${date}T${Math.floor(Math.random() * 24).toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}:00Z`);
-    const endTime = new Date(startTime.getTime() + 2000); // 2 secondes
+    const endTime = new Date(startTime.getTime() + 2000);
 
     return {
         id: `mock-${date}-${Math.random().toString(36).substr(2, 9)}`,
@@ -85,15 +78,11 @@ const generateMockMotionData = (date: string): MotionDataDecoded => {
 const generateMockEpisodes = (year: number, month: number): EpisodeData[] => {
     const episodes: EpisodeData[] = [];
     const daysInMonth = new Date(year, month, 0).getDate();
-
-    // Générer 10-15 jours avec des épisodes aléatoires
     const numDaysWithEpisodes = Math.floor(Math.random() * 6) + 10;
 
     for (let i = 0; i < numDaysWithEpisodes; i++) {
         const day = Math.floor(Math.random() * daysInMonth) + 1;
         const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-        // Nombre d'épisodes par jour (1-8)
         const count = Math.floor(Math.random() * 8) + 1;
 
         episodes.push({
@@ -107,9 +96,7 @@ const generateMockEpisodes = (year: number, month: number): EpisodeData[] => {
 };
 // ========================================
 
-export default function AnalysisScreen() {
-    const router = useRouter();
-
+export default function DataHistoryScreen() {
     const theme = useTheme();
     const screenStyles = createScreenStyles(theme);
     const dataHistoryStyles = createDataHistoryStyles(theme);
@@ -117,11 +104,8 @@ export default function AnalysisScreen() {
     const [episodes, setEpisodes] = useState<EpisodeData[]>([]);
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
     const [selectedData, setSelectedData] = useState<MotionDataDecoded | null>(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
-    const { width: screenWidth } = Dimensions.get('window');
-
-    // Charger les données au démarrage (mois actuel)
     useEffect(() => {
         const now = new Date();
         loadMonthEpisodes(now.getFullYear(), now.getMonth() + 1);
@@ -133,8 +117,6 @@ export default function AnalysisScreen() {
 
     const loadMonthEpisodes = async (year: number, month: number) => {
         setLoading(true);
-
-        // Simuler un délai réseau
         await new Promise(resolve => setTimeout(resolve, 800));
 
         try {
@@ -163,7 +145,6 @@ export default function AnalysisScreen() {
             //     data: e.items[0],
             // }));
             // setEpisodes(episodesArray);
-            // ========================================
         } catch (error) {
             console.error('Error loading episodes:', error);
         } finally {
@@ -191,12 +172,15 @@ export default function AnalysisScreen() {
         setSelectedData(episode?.data || null);
     };
 
-    const prepareChartData = (data: number[]) => {
-        return data.map((value, index) => ({
-            value: value,
-            label: index % 10 === 0 ? index.toString() : '',
-        }));
-    };
+    // Afficher LoadingView pendant le chargement initial
+    if (loading && episodes.length === 0) {
+        return (
+            <View style={screenStyles.container}>
+                <Text style={screenStyles.pageTitle}>Calendrier des épisodes</Text>
+                <LoadingView message={"Chargement de l'historique..."} />
+            </View>
+        );
+    }
 
     return (
         <ScrollView
@@ -205,12 +189,6 @@ export default function AnalysisScreen() {
             contentContainerStyle={{ paddingBottom: 60 }}
         >
             <Text style={screenStyles.pageTitle}>Calendrier des épisodes</Text>
-
-            {loading && (
-                <View style={dataHistoryStyles.loadingContainer}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                </View>
-            )}
 
             <Calendar
                 key={theme.mode}
@@ -248,6 +226,8 @@ export default function AnalysisScreen() {
                 </View>
             </View>
 
+            {/* TODO: LoadingView pour les données du jour sélectionné */}
+            {/* TODO: Afficher un message "Aucun épisode ce jour-là" si selectedData est null après chargement */}
             {selectedData && (
                 <View style={dataHistoryStyles.chartsContainer}>
                     <Text style={dataHistoryStyles.chartTitle}>
@@ -259,51 +239,18 @@ export default function AnalysisScreen() {
                     <View style={dataHistoryStyles.chartSection}>
                         <Text style={dataHistoryStyles.chartLabel}>Intensité des mouvements (normes)</Text>
 
-                        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                            <LineChart
-                                data={prepareChartData(
-                                    calculateMagnitude(
-                                        selectedData.data.ax.slice(0, 100),
-                                        selectedData.data.ay.slice(0, 100),
-                                        selectedData.data.az.slice(0, 100)
-                                    )
-                                )}
-                                data2={prepareChartData(
-                                    calculateMagnitude(
-                                        selectedData.data.gx.slice(0, 100),
-                                        selectedData.data.gy.slice(0, 100),
-                                        selectedData.data.gz.slice(0, 100)
-                                    )
-                                )}
-                                height={250}
-                                width={screenWidth - 64} // Largeur écran - padding (32*2)
-                                spacing={3}
-                                color1={theme.colors.primary}
-                                color2={theme.colors.accent}
-                                thickness={2}
-                                startFillColor1={theme.colors.primary}
-                                startFillColor2={theme.colors.accent}
-                                startOpacity={0.3}
-                                endOpacity={0.1}
-                                hideDataPoints
-                                curved
-                                xAxisColor={theme.colors.textSecondary}
-                                yAxisColor={theme.colors.textSecondary}
-                                yAxisTextStyle={{ color: theme.colors.textSecondary }}
-                                xAxisLabelTextStyle={{ color: theme.colors.textSecondary }}
-                            />
-                        </ScrollView>
-
-                        <View style={dataHistoryStyles.legendRow}>
-                            <View style={dataHistoryStyles.legendItem}>
-                                <View style={[dataHistoryStyles.line, { backgroundColor: theme.colors.primary }]} />
-                                <Text style={dataHistoryStyles.legendText}>Accéléromètre ||a||</Text>
-                            </View>
-                            <View style={dataHistoryStyles.legendItem}>
-                                <View style={[dataHistoryStyles.line, { backgroundColor: theme.colors.accent }]} />
-                                <Text style={dataHistoryStyles.legendText}>Gyroscope ||g||</Text>
-                            </View>
-                        </View>
+                        <MotionChart
+                            accelerometerData={calculateMagnitude(
+                                selectedData.data.ax.slice(0, 100),
+                                selectedData.data.ay.slice(0, 100),
+                                selectedData.data.az.slice(0, 100)
+                            )}
+                            gyroscopeData={calculateMagnitude(
+                                selectedData.data.gx.slice(0, 100),
+                                selectedData.data.gy.slice(0, 100),
+                                selectedData.data.gz.slice(0, 100)
+                            )}
+                        />
                     </View>
 
                     <View style={dataHistoryStyles.statsContainer}>

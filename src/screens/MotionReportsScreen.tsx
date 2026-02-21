@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Alert, Platform, } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView, Alert, Platform } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createMotionStyles } from '../styles/screens/motionStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import LoadingView from '../components/LoadingView';
 
 interface Report {
   id: string;
@@ -24,39 +25,52 @@ export default function ReportsScreen() {
   const [showEndPicker, setShowEndPicker] = useState(false);
 
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true); // ← Nouveau state
   const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     loadReports();
   }, []);
 
-  const loadReports = () => {
-    // ========== MODE SIMULATION ==========
-    const mockReports: Report[] = [
-      {
-        id: '1',
-        startDate: '2026-02-01',
-        endDate: '2026-02-07',
-        generatedAt: new Date('2026-02-08T10:30:00'),
-      },
-      {
-        id: '2',
-        startDate: '2026-01-15',
-        endDate: '2026-01-31',
-        generatedAt: new Date('2026-02-01T14:20:00'),
-      },
-      {
-        id: '3',
-        startDate: '2026-01-01',
-        endDate: '2026-01-14',
-        generatedAt: new Date('2026-01-15T09:15:00'),
-      },
-    ];
-    setReports(mockReports);
+  const loadReports = async () => { // ← Async
+    setInitialLoading(true);
+    
+    // Simuler un délai réseau
+    await new Promise(resolve => setTimeout(resolve, 800));
 
-    // ========== MODE RÉEL (à décommenter plus tard) ==========
-    // const savedReports = await reportsService.getAll();
-    // setReports(savedReports);
+    try {
+      // ========== MODE SIMULATION ==========
+      const mockReports: Report[] = [
+        {
+          id: '1',
+          startDate: '2026-02-01',
+          endDate: '2026-02-07',
+          generatedAt: new Date('2026-02-08T10:30:00'),
+        },
+        {
+          id: '2',
+          startDate: '2026-01-15',
+          endDate: '2026-01-31',
+          generatedAt: new Date('2026-02-01T14:20:00'),
+        },
+        {
+          id: '3',
+          startDate: '2026-01-01',
+          endDate: '2026-01-14',
+          generatedAt: new Date('2026-01-15T09:15:00'),
+        },
+      ];
+      setReports(mockReports);
+
+      // ========== MODE RÉEL (à décommenter plus tard) ==========
+      // const savedReports = await reportsService.getAll();
+      // setReports(savedReports);
+    } catch (error) {
+      console.error('Error loading reports:', error);
+      Alert.alert('Erreur', 'Impossible de charger les rapports');
+    } finally {
+      setInitialLoading(false);
+    }
   };
 
   const formatDate = (date: Date): string => {
@@ -75,7 +89,6 @@ export default function ReportsScreen() {
     setLoading(true);
 
     try {
-      // Simuler un délai de génération
       await new Promise(resolve => setTimeout(resolve, 1500));
 
       const start = formatDate(startDate);
@@ -88,7 +101,6 @@ export default function ReportsScreen() {
         [{ text: 'OK' }]
       );
 
-      // Ajouter le nouveau rapport à la liste
       const newReport: Report = {
         id: Date.now().toString(),
         startDate: start,
@@ -99,13 +111,12 @@ export default function ReportsScreen() {
 
       // ========== MODE RÉEL (à décommenter plus tard) ==========
       // const report = await reportsService.generate({ startDate: start, endDate: end });
-      // // Télécharger le fichier
       // await FileSystem.downloadAsync(
       //   report.downloadUrl,
       //   FileSystem.documentDirectory + `rapport_${start}_${end}.pdf`
       // );
       // Alert.alert('Succès', 'Le rapport a été téléchargé');
-      // loadReports(); // Recharger la liste
+      // loadReports();
     } catch (error) {
       console.error('Error generating report:', error);
       Alert.alert('Erreur', 'Impossible de générer le rapport');
@@ -144,10 +155,21 @@ export default function ReportsScreen() {
     }
   };
 
+  // Afficher LoadingView pendant le chargement initial
+  if (initialLoading) {
+    return (
+      <View style={screenStyles.container}>
+        <Text style={screenStyles.pageTitle}>Rapports</Text>
+        <LoadingView message="Chargement des rapports..." />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={screenStyles.container} showsVerticalScrollIndicator={false}>
       <Text style={screenStyles.pageTitle}>Rapports</Text>
       <Text style={screenStyles.sectionTitle}>Générer un rapport</Text>
+
       {/* Formulaire de génération */}
       <View style={motionStyles.rowForm}>
         <View style={motionStyles.formGroup}>

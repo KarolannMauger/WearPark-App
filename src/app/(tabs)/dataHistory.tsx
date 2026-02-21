@@ -1,5 +1,5 @@
-import AnalysisScreen from '@/src/screens/DataHistoryScreen';
+import DataHistoryScreen from '@/src/screens/DataHistoryScreen';
 
 export default function Home() {
-  return <AnalysisScreen />;
+  return <DataHistoryScreen />;
 }

@@ -17,6 +17,7 @@ export const createDataHistoryStyles = (theme) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    overflow: 'hidden',
   },
   dot: {
     width: 12,
@@ -51,6 +52,7 @@ export const createDataHistoryStyles = (theme) => StyleSheet.create({
   },
   chartSection: {
     marginBottom: 24,
+    overflow: 'scroll'
   },
   chartLabel: {
     ...theme.typography.bodySmall,

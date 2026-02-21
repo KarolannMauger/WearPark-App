@@ -29,6 +29,22 @@ export interface MotionDataDecoded {
   };
 }
 
+// route: /motion/view/day?date=<iso-date>
+// {
+//   "date": "<iso-date>",
+//   "avgIntensitiy": 1.9,
+//   "avgDurationMs": 10000, 
+//   "nbEpisode": 5,
+//   "lastEpisode": "<iso-date>",
+//   "graph": {
+//     "start": "<iso-date>",
+//     "end":   "<iso-date>",
+//     "max": 10.0,
+//     "min": 1.0,
+//     "data": [ 13.2, 1234.5, 1.6, null, null, 125.1 ]
+//   }
+// }
+
 export type MotionDataListResponse = MotionDataRaw[];
 
 export const motionService = {

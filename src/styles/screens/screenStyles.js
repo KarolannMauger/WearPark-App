@@ -4,7 +4,8 @@ export const createScreenStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    padding: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xxl,
   },
   redContainer: {
     flex: 1,

@@ -16,7 +16,7 @@ export default function ProfileScreen() {
 
 
   return (
-    <View style={[screenStyles.container, {position: "relative"}]}>
+    <View style={[screenStyles.container, { position: "relative" }]}>
       <Text style={screenStyles.pageTitle}> Mon profil </Text>
 
       <TouchableOpacity
@@ -29,27 +29,36 @@ export default function ProfileScreen() {
           color={theme.colors.textPrimary}
         />
       </TouchableOpacity>
+      <View style={{ flex: 1, justifyContent: "space-between" }}>
+        <View>
+          <View style={profileStyles.profileHeader}>
+            <Image
+              source={require('../../assets/images/wearpark-profile-placeholder.png')}
+              style={{ height: 80, alignSelf: 'center', marginTop: 20 }}
+              resizeMode="contain"
+            />
 
-      <View style={profileStyles.profileHeader}>
-<Image
-        source={require('../../assets/images/wearpark-profile-placeholder.png')}
-        style={{ height: 80, alignSelf: 'center', marginTop: 20 }}
-        resizeMode="contain"
-      />
+            <Text style={profileStyles.name}>
+              {user?.firstName} {user?.lastName}
+            </Text>
+            <Text style={profileStyles.email}>{user?.email}</Text>
 
-      <Text style={profileStyles.name}>
-        {user?.firstName} {user?.lastName}
-      </Text>
-      <Text style={profileStyles.email}>{user?.email}</Text>
 
-      <TouchableOpacity
-        onPress={undefined}
-        style={profileStyles.editButton} disabled={true}
-      >
-        <Text style={profileStyles.buttonText}>Edit Profil</Text>
-      </TouchableOpacity>
+          </View>
+
+          <View>
+            <Text style={screenStyles.sectionTitleSmall}>Appareil connecté</Text>
+
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => router.push("/editProfile")}
+          style={profileStyles.editButton}
+        >
+          <Text style={profileStyles.buttonText}>Edit Profil</Text>
+        </TouchableOpacity>
       </View>
-      
     </View>
   );
 }
