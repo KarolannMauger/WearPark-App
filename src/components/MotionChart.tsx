@@ -4,23 +4,23 @@ import { LineChart } from 'react-native-gifted-charts';
 import { useTheme } from '../context/ThemeContext';
 
 interface MotionChartProps {
-    accelerometerData: number[];
-    gyroscopeData: number[];
+    data: number[];
     height?: number;
     showLegend?: boolean;
+    label?: string;
 }
 
 export default function MotionChart({
-    accelerometerData,
-    gyroscopeData,
+    data,
     height = 250,
     showLegend = true,
+    label = "Intensité des tremblements"
 }: MotionChartProps) {
     const theme = useTheme();
     const { width: windowWidth } = useWindowDimensions();
 
-    const prepareChartData = (data: number[]) => {
-        return data.map((value, index) => ({
+    const prepareChartData = (values: number[]) => {
+        return values.map((value, index) => ({
             value: value,
             label: index % 10 === 0 ? index.toString() : '',
         }));
@@ -29,16 +29,13 @@ export default function MotionChart({
     return (
         <View style={styles.container}>
             <LineChart
-                data={prepareChartData(accelerometerData)}
-                data2={prepareChartData(gyroscopeData)}
+                data={prepareChartData(data)}
                 height={height}
                 width={windowWidth - 64}
                 spacing={3}
                 color1={theme.colors.primary}
-                color2={theme.colors.accent}
                 thickness={2}
                 startFillColor1={theme.colors.primary}
-                startFillColor2={theme.colors.accent}
                 startOpacity={0.3}
                 endOpacity={0.1}
                 hideDataPoints
@@ -54,13 +51,7 @@ export default function MotionChart({
                     <View style={styles.legendItem}>
                         <View style={[styles.line, { backgroundColor: theme.colors.primary }]} />
                         <Text style={[styles.legendText, { color: theme.colors.textSecondary }]}>
-                            Accéléromètre ||a||
-                        </Text>
-                    </View>
-                    <View style={styles.legendItem}>
-                        <View style={[styles.line, { backgroundColor: theme.colors.accent }]} />
-                        <Text style={[styles.legendText, { color: theme.colors.textSecondary }]}>
-                            Gyroscope ||g||
+                            {label}
                         </Text>
                     </View>
                 </View>
@@ -75,7 +66,7 @@ const styles = StyleSheet.create({
     },
     legendRow: {
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'center',
         marginTop: 12,
     },
     legendItem: {

@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createProfileStyles } from "../styles/screens/profileStyles";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useUser } from "@/src/context/UserContext";
 
 export default function ProfileScreen() {
@@ -48,6 +48,29 @@ export default function ProfileScreen() {
 
           <View>
             <Text style={screenStyles.sectionTitleSmall}>Appareil connecté</Text>
+            {user?.device ? (
+              <View style={profileStyles.deviceInfo}>
+                <View style={profileStyles.iconView}>
+                  <MaterialIcons name="watch" size={20} color={theme.colors.textPrimary} />
+                </View>
+                <View>
+                  <Text style={profileStyles.deviceText}>
+                    {user.device.deviceKey}
+                  </Text>
+                  <Text style={profileStyles.deviceSubText}>
+                    Dernière mesure à : {new Date(user.device.lastDeviceDataDate).toLocaleDateString()}
+                  </Text>
+                </View>
+
+              </View>
+            ) : (
+              <View style={profileStyles.deviceInfo}>
+                <View style={profileStyles.iconView}>
+                  <MaterialIcons name="watch-off" size={20} color={theme.colors.textPrimary} />
+                </View>
+                <Text style={profileStyles.deviceText}>Aucun appareil connecté</Text>
+              </View>
+            )}
 
           </View>
         </View>

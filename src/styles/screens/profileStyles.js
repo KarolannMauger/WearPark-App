@@ -41,4 +41,24 @@ export const createProfileStyles = (theme) =>
       ...theme.typography.button,
       color: theme.colors.white,
     },
+    deviceInfo: {
+      marginTop: theme.spacing.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    iconView: {
+      padding: theme.spacing.sm + 2,
+      backgroundColor: theme.colors.card,
+      borderRadius: theme.borderRadius.sm,
+      marginRight: theme.spacing.md,
+    },
+    deviceText: {
+      ...theme.typography.body,
+      color: theme.colors.textPrimary,
+    },
+    deviceSubText: {
+      ...theme.typography.bodySmall,
+      color: theme.colors.textSecondary,
+      marginTop: 4,
+    },
   });

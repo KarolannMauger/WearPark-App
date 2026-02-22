@@ -81,4 +81,8 @@ export const createDataHistoryStyles = (theme) => StyleSheet.create({
     color: theme.colors.textPrimary,
     marginBottom: 4,
   },
+  emptyText: {
+    ...theme.typography.h4,
+    color: theme.colors.textPrimary,
+  }
 });
