@@ -46,14 +46,14 @@ export default function SettingsScreen() {
             <Text style={settingsStyles.rowText}>Theme</Text>
           </View>
           <Switch
-            value={theme.theme === "dark"}
+            value={theme.mode === "dark"}
             onValueChange={theme.toggleTheme}
             thumbColor={
-              theme.theme === "dark" ? theme.colors.accent : theme.colors.white
+              theme.mode === "dark" ? theme.colors.secondary : theme.colors.white
             }
             trackColor={{
               false: theme.colors.tag,
-              true: theme.colors.accent + 80,
+              true: theme.colors.secondary + 80,
             }}
           />
         </View>

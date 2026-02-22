@@ -2,15 +2,7 @@ import { TouchableOpacity, Text } from "react-native";
 import { useTheme } from '../context/ThemeContext';
 import { createButtonStyles } from "../styles/components/buttonStyles";
 
-export default function Button({
-  title,
-  onPress,
-  variant = "primary",
-  size = "medium",
-  disabled = false,
-  style,
-  textStyle,
-}) {
+export default function Button({ title, onPress, variant = "primary", size = "medium", disabled = false, style, textStyle, }) {
   const theme = useTheme();
   const styles = createButtonStyles(theme);
 

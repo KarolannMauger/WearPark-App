@@ -32,7 +32,8 @@ export default{
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
     ],
     extra: {
       apiUrl: process.env.API_URL,

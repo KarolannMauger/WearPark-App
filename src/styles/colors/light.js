@@ -1,8 +1,9 @@
 export const lightColors = {
     // Color Palette
-    primary: '#006989',
-    secondary: '#007EA7',
-    accent: '#199BBB',
+    primary: '#820D0B',
+    secondary: '#994D52',
+    disabled: '#eeebec',
+    // accent: '#199BBB',
 
     // Background
     background: '#FCF7F7',
@@ -15,8 +16,13 @@ export const lightColors = {
     // Text
     textPrimary: '#1C0D0D',
     textSecondary: '#994D4D',
-    textDisabled: '#C7C7CC',
+    placeholder: '#aca6a8',
+    textDisabled: '#707072',
     textButton: '#FFFFFF',
+
+    // Borders
+    border: '#E8D1D1',
+    borderDisabled: '#cfc8cb',
 
     // States
     success: '#2d7c41ff',
@@ -33,6 +39,6 @@ export const lightColors = {
     black: '#000000',
 
     gradients: {
-        background: ['#1CA9C9', '#001F3F']
+        background: ['#820D0B', '#FCF7F7']
     },
 };

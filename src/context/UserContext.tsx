@@ -1,20 +1,44 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '@/src/services/authService';
 import { View, ActivityIndicator } from 'react-native';
 
+export interface User {
+  id?: string;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  dateOfBirth?: string;
+  hasDiagnostic?: boolean;
+  disease?: string;
+  preferences?: {
+    monthlyReportEmail: boolean;
+    reportRecipients: string[];
+  };
+  profileComplete?: boolean;
+}
+
+const isProfileComplete = (user: User | null): boolean => {
+  if (!user) return false;
+  // Vérifier si les champs obligatoires sont remplis
+  return !!(user.firstName && user.lastName && user.dateOfBirth);
+};
+
 interface UserContextType {
-  user: { email: string } | null;
+  user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
+  register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  updateUser: (userData: Partial<User>) => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
@@ -27,11 +51,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    const inPublicRoute = segments[0] === 'login' || segments[0] === 'register';
+    const isWelcome = !segments[0] || segments[0] === 'index';
+    const isAuth = segments[0] === 'login' || segments[0] === 'register';
+    const isCompleteProfile = segments[0] === 'complete-profile';
 
-    if (!user && !inPublicRoute) {
-      router.replace('/login');
-    } else if (user && inPublicRoute) {
+    if (isWelcome || isCompleteProfile) return;
+
+    // non connecté et pas sur route publique → retour welcome
+    if (!user && !isAuth) {
+      router.replace('/');
+    }
+    // connecté mais profil incomplet → complete-profile
+    else if (user && !isProfileComplete(user) && !isCompleteProfile) {
+      router.replace('/completeProfile');
+    }
+    // connecté avec profil complet et sur route auth → home
+    else if (user && isProfileComplete(user) && isAuth) {
       router.replace('/(tabs)/home');
     }
   }, [user, segments, isLoading]);
@@ -55,9 +90,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
     try {
       await authService.login(email, password);
 
-      setUser({ email });
+      const storedUser = await authService.getStoredUser();
+
+      setUser(storedUser);
     } catch (error) {
-      console.error('❌ Login error in UserContext:', error);
+      console.error('Login error in UserContext:', error);
+      throw error;
+    }
+  };
+
+  const register = async (email: string, password: string): Promise<void> => {
+    try {
+      // création compte
+      await authService.register({ email, password });
+
+      // login automatique
+      await authService.login(email, password);
+
+      const storedUser = await authService.getStoredUser();
+      setUser(storedUser);
+
+      router.replace('/completeProfile');
+    } catch (error) {
+      console.error('Register error in UserContext:', error);
       throw error;
     }
   };
@@ -65,6 +120,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = async (): Promise<void> => {
     await authService.logout();
     setUser(null);
+  };
+
+  const updateUser = async (userData: Partial<User>): Promise<void> => {
+    const updatedUser = { ...user, ...userData } as User;
+    setUser(updatedUser);
+
+    await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
   if (isLoading) {
@@ -76,7 +138,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <UserContext.Provider value={{ user, isLoading, login, logout }}>
+    <UserContext.Provider value={{ user, isLoading, login, register, logout, updateUser }}>
       {children}
     </UserContext.Provider>
   );

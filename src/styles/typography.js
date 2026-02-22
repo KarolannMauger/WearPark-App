@@ -1,4 +1,4 @@
- export const typography = {
+export const typography = {
     sizes: {
         xs: 12,
         sm: 14,
@@ -25,11 +25,13 @@
     },
     h2: {
         fontFamily: 'Roboto_500Medium',
-        fontSize: 20,
+        fontSize: 22,
+        marginBottom: 10,
     },
     h3: {
-        fontFamily: 'Roboto_600SemiBold',
-        fontSize: 20,
+        fontFamily: 'Roboto_500Medium',
+        fontSize: 18,
+        marginBottom: 6,
     },
     h4: {
         fontFamily: 'Roboto_600SemiBold',
@@ -67,11 +69,15 @@
     },
     inputLabel: {
         fontFamily: 'Roboto_400Regular',
+        fontSize: 14,
+    },
+    checkboxLabel: {
+        fontFamily: 'Roboto_400Regular',
         fontSize: 16,
     },
     inputHelper: {
         fontFamily: 'Roboto_400Regular',
-        fontSize: 14,
+        fontSize: 12,
     },
     inputError: {
         fontFamily: 'Roboto_500Medium',

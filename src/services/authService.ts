@@ -46,7 +46,7 @@ export const authService = {
       const user = userJson ? JSON.parse(userJson) : null;
       return user;
     } catch (error) {
-      console.error('❌ Error getting stored user:', error);
+      console.error('Error getting stored user:', error);
       return null;
     }
   },
