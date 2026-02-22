@@ -1,4 +1,3 @@
-// src/services/api.ts
 import axios, { 
   AxiosInstance, 
   InternalAxiosRequestConfig, 
@@ -19,7 +18,6 @@ const baseConfig = {
 if (ENV.debug) {
   console.log('API Base URL:', baseConfig.baseURL);
 }
-
 // ========================================
 // PUBLIC API - Routes d'authentification
 // ========================================

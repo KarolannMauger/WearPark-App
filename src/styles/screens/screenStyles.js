@@ -4,7 +4,8 @@ export const createScreenStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
-    padding: theme.spacing.xl,
+    padding: theme.spacing.lg,
+    paddingTop: theme.spacing.xxl,
   },
   redContainer: {
     flex: 1,
@@ -15,9 +16,19 @@ export const createScreenStyles = (theme) => StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background,
   },
-  rowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  pageTitle: {
+    ...theme.typography.h3,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.lg,
+    textAlign: 'center',
+  },
+  sectionTitle: {
+    ...theme.typography.h2,
+    color: theme.colors.textPrimary,
+    marginBottom: theme.spacing.md
+  },
+  sectionTitleSmall: {
+    ...theme.typography.h4,
+    color: theme.colors.textPrimary,
   },
 });

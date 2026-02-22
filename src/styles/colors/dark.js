@@ -1,16 +1,16 @@
 export const darkColors = {
     // Color Palette
-    primary: '#00809D',
-    secondary: '#007EA7',
+    primary: '#820D0B',
+    secondary: '#eee2e2',
     disabled: '#e8e8e9',
-    // accent: '#094B6B',
+    accent: '#126586',
 
     // Background
-    background: '#171212',
+    background: '#2b2323',
     tabBackground: '#382929',
     auth: '#FFFFFF',
-    card: '#382929',
-    tag: '#455863',
+    card: '#553e3e',
+    chartBackground: '#5e4040',
     bar: '#262D34',
 
     // Text
@@ -38,6 +38,6 @@ export const darkColors = {
     black: '#000000',
 
     gradients: {
-        background: ['#1CA9C9', '#001F3F']
+        background: ['#530e0d', '#9e3331']
     },
 };

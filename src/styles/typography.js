@@ -20,7 +20,7 @@ export const typography = {
 
     // Headers and elements styles
     h1: {
-        fontFamily: 'Roboto_500Medium',
+        fontFamily: 'Roboto_600SemiBold',
         fontSize: 32,
     },
     h2: {
@@ -34,7 +34,7 @@ export const typography = {
         marginBottom: 6,
     },
     h4: {
-        fontFamily: 'Roboto_600SemiBold',
+        fontFamily: 'Roboto_400Regular',
         fontSize: 18,
     },
     body: {

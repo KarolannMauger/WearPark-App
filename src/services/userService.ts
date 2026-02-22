@@ -13,6 +13,12 @@ export interface User {
     monthlyReportEmail: boolean;
     reportRecipients: string[];
   };
+  device?: {
+    id: string;
+    deviceKey: string;
+    lastSync: string;
+    lastDeviceDataDate: string;
+  };
 }
 
 export const userService = {

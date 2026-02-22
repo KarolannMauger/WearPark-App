@@ -1,9 +1,9 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createProfileStyles } from "../styles/screens/profileStyles";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useUser } from "@/src/context/UserContext";
 
 export default function ProfileScreen() {
@@ -16,9 +16,11 @@ export default function ProfileScreen() {
 
 
   return (
-    <View style={screenStyles.container}>
+    <View style={[screenStyles.container, { position: "relative" }]}>
+      <Text style={screenStyles.pageTitle}> Mon profil </Text>
+
       <TouchableOpacity
-        style={profileStyles.row}
+        style={{ position: "absolute", right: theme.spacing.xl, top: theme.spacing.xl, zIndex: 10 }}
         onPress={() => router.push("/settings")}
       >
         <MaterialIcons
@@ -27,16 +29,59 @@ export default function ProfileScreen() {
           color={theme.colors.textPrimary}
         />
       </TouchableOpacity>
+      <View style={{ flex: 1, justifyContent: "space-between" }}>
+        <View>
+          <View style={profileStyles.profileHeader}>
+            <Image
+              source={require('../../assets/images/wearpark-profile-placeholder.png')}
+              style={{ height: 80, alignSelf: 'center', marginTop: 20 }}
+              resizeMode="contain"
+            />
 
-      <Text style={{ color: theme.colors.textPrimary, ...theme.typography.h1 }}>
-        Profil
-      </Text>
+            <Text style={profileStyles.name}>
+              {user?.firstName} {user?.lastName}
+            </Text>
+            <Text style={profileStyles.email}>{user?.email}</Text>
 
-      {user && (
-        <Text style={{ color: theme.colors.textPrimary, marginBottom: 20 }}>
-          {user.email}
-        </Text>
-      )}
+
+          </View>
+
+          <View>
+            <Text style={screenStyles.sectionTitleSmall}>Appareil connecté</Text>
+            {user?.device ? (
+              <View style={profileStyles.deviceInfo}>
+                <View style={profileStyles.iconView}>
+                  <MaterialIcons name="watch" size={20} color={theme.colors.textPrimary} />
+                </View>
+                <View>
+                  <Text style={profileStyles.deviceText}>
+                    {user.device.deviceKey}
+                  </Text>
+                  <Text style={profileStyles.deviceSubText}>
+                    Dernière mesure à : {new Date(user.device.lastDeviceDataDate).toLocaleDateString()}
+                  </Text>
+                </View>
+
+              </View>
+            ) : (
+              <View style={profileStyles.deviceInfo}>
+                <View style={profileStyles.iconView}>
+                  <MaterialIcons name="watch-off" size={20} color={theme.colors.textPrimary} />
+                </View>
+                <Text style={profileStyles.deviceText}>Aucun appareil connecté</Text>
+              </View>
+            )}
+
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => router.push("/editProfile")}
+          style={profileStyles.editButton}
+        >
+          <Text style={profileStyles.buttonText}>Edit Profil</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
