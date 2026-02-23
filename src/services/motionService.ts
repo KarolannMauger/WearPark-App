@@ -1,3 +1,4 @@
+import { ApiError } from '../errors/ApiError';
 import { privateApiClient } from './api';
 
 export interface DayViewResponse {
@@ -51,26 +52,21 @@ export interface MotionMonthData {
 // ========== SERVICE ==========
 
 export const motionService = {
-  /**
-   * Récupérer les données d'une journée spécifique
-   */
   getDayView: async (date: string): Promise<MotionDayData> => {
-    console.log('motionService.getDayView called for:', date);
-    
     try {
       const response = await privateApiClient.get<DayViewResponse>(
         `/motion/view/day`,
         { params: { date } }
       );
-      
-      console.log('Day view received:', response.data.date);
-      
+
       return {
         date: new Date(response.data.date),
         avgIntensity: response.data.avgIntensity,
-        avgDuration: response.data.avgDurationMs / 1000, // Convertir ms → secondes
+        avgDuration: response.data.avgDurationMs / 1000,
         episodeCount: response.data.nbEpisode,
-        lastEpisode: response.data.lastEpisode ? new Date(response.data.lastEpisode) : null,
+        lastEpisode: response.data.lastEpisode
+          ? new Date(response.data.lastEpisode)
+          : null,
         graphData: response.data.graph.data,
         graphStart: new Date(response.data.graph.start),
         graphEnd: new Date(response.data.graph.end),
@@ -78,50 +74,71 @@ export const motionService = {
         graphMin: response.data.graph.min,
       };
     } catch (error: any) {
-      console.error('Motion getDayView Error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw error;
+      const status = error.response?.status;
+
+      if (status === 401) {
+        throw new ApiError(401, "Session expirée. Veuillez vous reconnecter.");
+      }
+
+      if (status === 404) {
+        throw new ApiError(404, "Aucune donnée trouvée pour cette date.");
+      }
+
+      if (status === 429) {
+        throw new ApiError(429, "Trop de requêtes. Veuillez réessayer plus tard.");
+      }
+
+      if (status >= 500) {
+        throw new ApiError(500, "Erreur serveur. Réessayez plus tard.");
+      }
+
+      throw new ApiError(
+        status ?? 0,
+        error.response?.data?.message || "Erreur lors du chargement des données."
+      );
     }
   },
 
-  /**
-   * Récupérer les données d'un mois (pour le calendrier)
-   */
-  getMonthView: async (year: number, month: number): Promise<MotionMonthData> => {
-    console.log('motionService.getMonthView called for:', { year, month });
-    
+  getMonthView: async (
+    year: number,
+    month: number
+  ): Promise<MotionMonthData> => {
     try {
       const response = await privateApiClient.get<MonthViewResponse>(
         `/motion/view/month`,
         { params: { year, month } }
       );
-      
-      console.log('Month view received:', response.data.days.length, 'days');
-      
+
       return {
         year: response.data.year,
         month: response.data.month,
-        episodes: response.data.days.map(day => ({
+        episodes: response.data.days.map((day) => ({
           date: day.date,
           count: day.nbEpisode,
         })),
       };
     } catch (error: any) {
-      console.error('Motion getMonthView Error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw error;
+      const status = error.response?.status;
+
+      if (status === 401) {
+        throw new ApiError(401, "Session expirée. Veuillez vous reconnecter.");
+      }
+
+      if (status === 429) {
+        throw new ApiError(429, "Trop de requêtes. Veuillez réessayer plus tard.");
+      }
+
+      if (status >= 500) {
+        throw new ApiError(500, "Erreur serveur. Réessayez plus tard.");
+      }
+
+      throw new ApiError(
+        status ?? 0,
+        error.response?.data?.message || "Erreur lors du chargement du calendrier."
+      );
     }
   },
 
-  /**
-   * Récupérer les données du jour actuel (pour HomeScreen)
-   */
   getTodayView: async (): Promise<MotionDayData> => {
     const today = new Date().toISOString().split('T')[0];
     return motionService.getDayView(today);

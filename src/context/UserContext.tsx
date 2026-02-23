@@ -55,27 +55,30 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+  if (isLoading) return;
 
-    const isWelcome = !segments[0] || segments[0] === 'index';
-    const isAuth = segments[0] === 'login' || segments[0] === 'register';
-    const isCompleteProfile = segments[0] === 'complete-profile';
+  const segment = segments[0];
 
-    if (isWelcome || isCompleteProfile) return;
+  const isWelcome = !segment || segment === 'index';
+  const isAuth = segment === 'login' || segment === 'register';
+  const isCompleteProfile = segment === 'complete-profile';
 
-    // non connecté et pas sur route publique → retour welcome
-    if (!user && !isAuth) {
-      router.replace('/');
-    }
-    // connecté mais profil incomplet → complete-profile
-    else if (user && !isProfileComplete(user) && !isCompleteProfile) {
-      router.replace('/completeProfile');
-    }
-    // connecté avec profil complet et sur route auth → home
-    else if (user && isProfileComplete(user) && isAuth) {
-      router.replace('/(tabs)/home');
-    }
-  }, [user, segments, isLoading]);
+  if (!user && !isAuth && !isWelcome) {
+    router.replace('/');
+    return;
+  }
+
+  if (user && !isProfileComplete(user) && !isCompleteProfile) {
+    router.replace('/completeProfile');
+    return;
+  }
+
+  if (user && isProfileComplete(user) && isAuth) {
+    router.replace('/(tabs)/home');
+    return;
+  }
+
+}, [user, segments, isLoading]);
 
   const loadUser = async () => {
     try {

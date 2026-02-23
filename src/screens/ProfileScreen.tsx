@@ -20,7 +20,7 @@ export default function ProfileScreen() {
       <Text style={screenStyles.pageTitle}> Mon profil </Text>
 
       <TouchableOpacity
-        style={{ position: "absolute", right: theme.spacing.xl, top: theme.spacing.xl, zIndex: 10 }}
+        style={{ position: "absolute", right: theme.spacing.lg, top: theme.spacing.xl, zIndex: 10 }}
         onPress={() => router.push("/settings")}
       >
         <MaterialIcons

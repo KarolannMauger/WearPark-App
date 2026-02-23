@@ -8,6 +8,8 @@ import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createAuthStyles } from "../styles/screens/authStyles";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import BackHeader from "../components/BackHeader";
+import { validateEmail } from "@/src/utils/validators";
+import { ApiError } from "@/src/errors/ApiError";
 
 export default function Login() {
   const theme = useTheme();
@@ -26,17 +28,29 @@ export default function Login() {
   const handleLogin = async () => {
     setError(null);
 
-    if (!email || !password) {
-      setError("Please enter both email and password.");
+    const trimmedEmail = email.toLowerCase().trim();
+
+    const emailError = validateEmail(trimmedEmail);
+    if (emailError) {
+      setError(emailError);
+      return;
+    }
+
+    if (!password) {
+      setError("Password is required.");
       return;
     }
 
     setLoading(true);
 
     try {
-      await login(email.toLowerCase().trim(), password);
-    } catch (err: any) {
-      setError(err?.response?.data?.message || "Incorrect email or password.");
+      await login(trimmedEmail, password);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("Unexpected error. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -53,15 +67,15 @@ export default function Login() {
         showsVerticalScrollIndicator={false}
       >
         <View style={{ height: 300, paddingHorizontal: 20 }}>
-          <BackHeader title="Connexion" goTo="/home" color="#fff" />
+          <BackHeader title="Connexion" goTo="/" color="#fff" />
           <Image
             source={require('../../assets/images/wearpark-logo-rounded.png')}
-            style={{ height:80, alignSelf: 'center', marginTop: 20 }}
+            style={{ height: 80, alignSelf: 'center', marginTop: 20 }}
             resizeMode="contain"
           />
           <Image
             source={require('../../assets/images/wearkpark-title-white.png')}
-            style={{ height:36, alignSelf: 'center', marginTop: 10 }}
+            style={{ height: 36, alignSelf: 'center', marginTop: 10 }}
             resizeMode="contain"
           />
         </View>
@@ -76,7 +90,6 @@ export default function Login() {
               autoCapitalize="none"
               keyboardType="email-address"
               placeholder="Enter your email"
-              returnKeyType="next"
             />
           </View>
 
@@ -90,7 +103,6 @@ export default function Login() {
                 secureTextEntry={!showPassword}
                 placeholder="Enter your password"
                 autoCapitalize="none"
-                returnKeyType="done"
                 onSubmitEditing={handleLogin}
               />
               <TouchableOpacity

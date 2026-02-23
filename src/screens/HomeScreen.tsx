@@ -6,20 +6,22 @@ import { createHomeStyles } from '../styles/screens/homeStyles';
 import { motionService, MotionDayData } from '@/src/services/motionService';
 import { useEffect, useState } from 'react';
 import LoadingView from '../components/LoadingView';
+import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
+import { ApiError } from '@/src/errors/ApiError';
 
 // ========== SIMULATION DONNÉES API ==========
 const generateMockDayData = (): MotionDayData => {
     const today = new Date();
     const episodeCount = Math.floor(Math.random() * 5) + 3;
-    
+
     // Générer des données de graphique réalistes
     const graphData: number[] = [];
     for (let i = 0; i < 150; i++) {
         const t = i * 0.01;
         const tremblePhase = Math.sin(t * 0.5);
         const isActive = tremblePhase > -0.3;
-        
+
         if (isActive) {
             const amplitude = (0.5 + Math.random() * 0.5);
             const noise = (Math.random() - 0.5) * 0.3;
@@ -28,7 +30,7 @@ const generateMockDayData = (): MotionDayData => {
             graphData.push(9.8 + (Math.random() - 0.5) * 0.1);
         }
     }
-    
+
     return {
         date: today,
         avgIntensity: 1.2 + Math.random() * 0.8,
@@ -52,6 +54,7 @@ export default function HomeScreen() {
 
     const [todayData, setTodayData] = useState<MotionDayData | null>(null);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         loadTodayData();
@@ -69,8 +72,16 @@ export default function HomeScreen() {
             // ========== MODE RÉEL (à décommenter plus tard) ==========
             // const data = await motionService.getTodayView();
             // setTodayData(data);
-        } catch (error) {
-            console.error('Error loading today data:', error);
+        } catch (err) {
+            if (err instanceof ApiError) {
+                if (err.status === 404) {
+                    setTodayData(null);
+                } else {
+                    setError(err.message);
+                }
+            } else {
+                setError("Erreur inattendue lors du chargement des données.");
+            }
         } finally {
             setLoading(false);
         }
@@ -93,6 +104,15 @@ export default function HomeScreen() {
             <View style={screenStyles.container}>
                 <Text style={screenStyles.pageTitle}>Tableau de bord</Text>
                 <LoadingView message="Chargement des données..." />
+            </View>
+        );
+    }
+
+    if (error) {
+        return (
+            <View style={screenStyles.container}>
+                <Text style={screenStyles.pageTitle}>Tableau de bord</Text>
+                <ErrorView message={error} onRetry={loadTodayData} />
             </View>
         );
     }

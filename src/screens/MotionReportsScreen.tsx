@@ -6,6 +6,8 @@ import { createMotionStyles } from '../styles/screens/motionStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import LoadingView from '../components/LoadingView';
+import ErrorView from '../components/ErrorView';
+import { ApiError } from '@/src/errors/ApiError';
 
 interface Report {
   id: string;
@@ -25,8 +27,10 @@ export default function ReportsScreen() {
   const [showEndPicker, setShowEndPicker] = useState(false);
 
   const [loading, setLoading] = useState(false);
-  const [initialLoading, setInitialLoading] = useState(true); // ← Nouveau state
+  const [initialLoading, setInitialLoading] = useState(true);
   const [reports, setReports] = useState<Report[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     loadReports();
@@ -34,7 +38,7 @@ export default function ReportsScreen() {
 
   const loadReports = async () => { // ← Async
     setInitialLoading(true);
-    
+
     // Simuler un délai réseau
     await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -65,9 +69,12 @@ export default function ReportsScreen() {
       // ========== MODE RÉEL (à décommenter plus tard) ==========
       // const savedReports = await reportsService.getAll();
       // setReports(savedReports);
-    } catch (error) {
-      console.error('Error loading reports:', error);
-      Alert.alert('Erreur', 'Impossible de charger les rapports');
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("Erreur inattendue lors du chargement des rapports.");
+      }
     } finally {
       setInitialLoading(false);
     }
@@ -155,12 +162,21 @@ export default function ReportsScreen() {
     }
   };
 
-  // Afficher LoadingView pendant le chargement initial
+
   if (initialLoading) {
     return (
       <View style={screenStyles.container}>
         <Text style={screenStyles.pageTitle}>Rapports</Text>
         <LoadingView message="Chargement des rapports..." />
+      </View>
+    );
+  }
+
+  if (error && reports.length === 0) {
+    return (
+      <View style={screenStyles.container}>
+        <Text style={screenStyles.pageTitle}>Rapports</Text>
+        <ErrorView message={error} onRetry={loadReports} />
       </View>
     );
   }
