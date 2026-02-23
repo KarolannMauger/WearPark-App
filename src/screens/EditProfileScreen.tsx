@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useUser } from "@/src/context/UserContext";
 import BackHeader from '../components/BackHeader';
 import UserProfileForm, { UserProfileData } from '../components/UserProfileForm';
+import { userService } from '../services/userService';
 
 export default function EditProfileScreen() {
     const router = useRouter();
@@ -22,34 +23,13 @@ export default function EditProfileScreen() {
         setIsLoading(true);
 
         try {
-            // MODE SIMULATION - Commentez cette section quand l'API est prête
-            console.log('📝 Données du formulaire (simulé):', data);
-
-            // Simuler un délai d'API
-            await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Simuler la réponse de l'API
-            const mockProfile = {
-                id: 'mock-id-123',
-                ...data,
-            };
-
-            // Mettre à jour le contexte utilisateur
-            await updateUser(mockProfile);
-
-            Alert.alert('Succès', 'Profil sauvegardé (mode simulation)');
-
-            // Rediriger vers home
+            const updatedProfile = await userService.updateProfile(data);
+            await updateUser(updatedProfile);
             router.replace('/(tabs)/profile');
-
-            // MODE PRODUCTION - Décommentez quand l'API est prête
-            // const updatedProfile = await userService.updateProfile(data);
-            // await updateUser(updatedProfile);
-            // router.replace('/(tabs)/home');
 
         } catch (error) {
             console.error('Error saving profile:', error);
-            Alert.alert('Erreur', 'Impossible de sauvegarder le profil (simulé)');
+            Alert.alert('Erreur', 'Impossible de sauvegarder le profil');
             throw error;
         } finally {
             setIsLoading(false);

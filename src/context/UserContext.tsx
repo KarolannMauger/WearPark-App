@@ -1,36 +1,33 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { useRouter, useSegments } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { authService } from '@/src/services/authService';
+import { userService, User as BackendUser } from '@/src/services/userService';
 import { View, ActivityIndicator } from 'react-native';
 
-export interface User {
-  id?: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  dateOfBirth?: string;
-  hasDiagnostic?: boolean;
-  disease?: string;
-  preferences?: {
+export interface User extends BackendUser {
+  profileComplete?: boolean;
+  preferences: {
     monthlyReportEmail: boolean;
     reportRecipients: string[];
   };
-  device?: {
-    id: string;
-    deviceKey: string;
-    lastSync: string;
-    lastDeviceDataDate: string;
-  };
-  profileComplete?: boolean;
 }
 
+// Vérifie si le profil est complet
 const isProfileComplete = (user: User | null): boolean => {
   if (!user) return false;
-  // Vérifier si les champs obligatoires sont remplis
-  return !!(user.firstName && user.lastName && user.dateOfBirth);
+  const validDate = !!user.dateOfBirth && !isNaN(new Date(user.dateOfBirth).getTime());
+  return !!(user.firstName && user.lastName && validDate);
 };
+
+// Normalisation du profil (null → valeurs par défaut)
+const normalizeUserPreferences = (user: BackendUser) => ({
+  ...user,
+  preferences: {
+    monthlyReportEmail: user.preferences?.monthlyReportEmail ?? false,
+    reportRecipients: user.preferences?.reportRecipients ?? [],
+  },
+});
 
 interface UserContextType {
   user: User | null;
@@ -55,38 +52,35 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-  if (isLoading) return;
+    if (isLoading) return;
 
-  const segment = segments[0];
+    const segment = segments[0];
+    const isWelcome = !segment || segment === 'index';
+    const isAuth = segment === 'login' || segment === 'register';
+    const isCompleteProfile = segment === 'complete-profile';
 
-  const isWelcome = !segment || segment === 'index';
-  const isAuth = segment === 'login' || segment === 'register';
-  const isCompleteProfile = segment === 'complete-profile';
+    if (!user && !isAuth && !isWelcome) {
+      router.replace('/');
+      return;
+    }
 
-  if (!user && !isAuth && !isWelcome) {
-    router.replace('/');
-    return;
-  }
+    if (user && !isProfileComplete(user) && !isCompleteProfile) {
+      router.replace('/complete-profile');
+      return;
+    }
 
-  if (user && !isProfileComplete(user) && !isCompleteProfile) {
-    router.replace('/completeProfile');
-    return;
-  }
-
-  if (user && isProfileComplete(user) && isAuth) {
-    router.replace('/(tabs)/home');
-    return;
-  }
-
-}, [user, segments, isLoading]);
+    if (user && isProfileComplete(user) && isAuth) {
+      router.replace('/(tabs)/home');
+      return;
+    }
+  }, [user, segments, isLoading]);
 
   const loadUser = async () => {
     try {
       const token = await SecureStore.getItemAsync('userToken');
-      const storedUser = await authService.getStoredUser();
-
-      if (token && storedUser) {
-        setUser(storedUser);
+      if (token) {
+        const profile = await userService.getProfile();
+        setUser({ ...normalizeUserPreferences(profile), profileComplete: isProfileComplete(profile) });
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -98,10 +92,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string): Promise<void> => {
     try {
       await authService.login(email, password);
-
-      const storedUser = await authService.getStoredUser();
-
-      setUser(storedUser);
+      const profile = await userService.getProfile();
+      setUser({ ...normalizeUserPreferences(profile), profileComplete: isProfileComplete(profile) });
     } catch (error) {
       console.error('Login error in UserContext:', error);
       throw error;
@@ -110,16 +102,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const register = async (email: string, password: string): Promise<void> => {
     try {
-      // création compte
       await authService.register({ email, password });
-
-      // login automatique
       await authService.login(email, password);
-
-      const storedUser = await authService.getStoredUser();
-      setUser(storedUser);
-
-      router.replace('/completeProfile');
+      const profile = await userService.getProfile();
+      setUser({ ...normalizeUserPreferences(profile), profileComplete: isProfileComplete(profile) });
+      router.replace('/complete-profile');
     } catch (error) {
       console.error('Register error in UserContext:', error);
       throw error;
@@ -132,10 +119,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUser = async (userData: Partial<User>): Promise<void> => {
-    const updatedUser = { ...user, ...userData } as User;
-    setUser(updatedUser);
-
-    await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+    setUser(prev => ({ ...prev, ...userData } as User));
   };
 
   if (isLoading) {
@@ -155,7 +139,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
 export function useUser() {
   const context = useContext(UserContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;

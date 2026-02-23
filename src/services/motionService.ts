@@ -1,36 +1,11 @@
 import { ApiError } from '../errors/ApiError';
 import { privateApiClient } from './api';
-
-export interface DayViewResponse {
-  date: string;
-  avgIntensity: number;
-  avgDurationMs: number;
-  nbEpisode: number;
-  lastEpisode: string;
-  graph: {
-    start: string;
-    end: string;
-    max: number;
-    min: number;
-    data: number[];
-  };
-}
-
-export interface MonthViewResponse {
-  year: number;
-  month: number;
-  days: Array<{
-    date: string;
-    nbEpisode: number;
-  }>;
-}
-
-// ========== app types ==========
+import { base64ToFloatArray } from '@/src/utils/base64';
 
 export interface MotionDayData {
   date: Date;
   avgIntensity: number;
-  avgDuration: number; // en secondes
+  avgDuration: number;
   episodeCount: number;
   lastEpisode: Date | null;
   graphData: number[];
@@ -40,107 +15,34 @@ export interface MotionDayData {
   graphMin: number;
 }
 
-export interface MotionMonthData {
-  year: number;
-  month: number;
-  episodes: Array<{
-    date: string;
-    count: number;
-  }>;
-}
-
-// ========== SERVICE ==========
-
 export const motionService = {
   getDayView: async (date: string): Promise<MotionDayData> => {
     try {
-      const response = await privateApiClient.get<DayViewResponse>(
-        `/motion/view/day`,
-        { params: { date } }
-      );
+      const response = await privateApiClient.get(`/motion/view/day`, { params: { date } });
+      console.log('Motion getDayView response:', response.data);
+
+      const decodedGraphData = base64ToFloatArray(response.data.graph.data);
 
       return {
         date: new Date(response.data.date),
         avgIntensity: response.data.avgIntensity,
         avgDuration: response.data.avgDurationMs / 1000,
         episodeCount: response.data.nbEpisode,
-        lastEpisode: response.data.lastEpisode
-          ? new Date(response.data.lastEpisode)
-          : null,
-        graphData: response.data.graph.data,
+        lastEpisode: response.data.lastEpisode ? new Date(response.data.lastEpisode) : null,
+        graphData: decodedGraphData,
         graphStart: new Date(response.data.graph.start),
         graphEnd: new Date(response.data.graph.end),
-        graphMax: response.data.graph.max,
-        graphMin: response.data.graph.min,
+        graphMax: isFinite(response.data.graph.max) ? response.data.graph.max : 0,
+        graphMin: isFinite(response.data.graph.min) ? response.data.graph.min : 0,
       };
-    } catch (error: any) {
-      const status = error.response?.status;
-
-      if (status === 401) {
-        throw new ApiError(401, "Session expirée. Veuillez vous reconnecter.");
-      }
-
-      if (status === 404) {
-        throw new ApiError(404, "Aucune donnée trouvée pour cette date.");
-      }
-
-      if (status === 429) {
-        throw new ApiError(429, "Trop de requêtes. Veuillez réessayer plus tard.");
-      }
-
-      if (status >= 500) {
-        throw new ApiError(500, "Erreur serveur. Réessayez plus tard.");
-      }
-
-      throw new ApiError(
-        status ?? 0,
-        error.response?.data?.message || "Erreur lors du chargement des données."
-      );
-    }
-  },
-
-  getMonthView: async (
-    year: number,
-    month: number
-  ): Promise<MotionMonthData> => {
-    try {
-      const response = await privateApiClient.get<MonthViewResponse>(
-        `/motion/view/month`,
-        { params: { year, month } }
-      );
-
-      return {
-        year: response.data.year,
-        month: response.data.month,
-        episodes: response.data.days.map((day) => ({
-          date: day.date,
-          count: day.nbEpisode,
-        })),
-      };
-    } catch (error: any) {
-      const status = error.response?.status;
-
-      if (status === 401) {
-        throw new ApiError(401, "Session expirée. Veuillez vous reconnecter.");
-      }
-
-      if (status === 429) {
-        throw new ApiError(429, "Trop de requêtes. Veuillez réessayer plus tard.");
-      }
-
-      if (status >= 500) {
-        throw new ApiError(500, "Erreur serveur. Réessayez plus tard.");
-      }
-
-      throw new ApiError(
-        status ?? 0,
-        error.response?.data?.message || "Erreur lors du chargement du calendrier."
-      );
+    } catch (error) {
+      console.error('❌ Motion getDayView Error:', error);
+      throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données journalières.');
     }
   },
 
   getTodayView: async (): Promise<MotionDayData> => {
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString();
     return motionService.getDayView(today);
   },
 };

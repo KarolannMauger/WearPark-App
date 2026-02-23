@@ -18,31 +18,30 @@ export default function CompleteProfileScreen() {
     setIsLoading(true);
 
     try {
-      // MODE SIMULATION - Commentez cette section quand l'API est prête
-      console.log('📝 Données du formulaire (simulé):', data);
+      // // MODE SIMULATION - Commentez cette section quand l'API est prête
+      // console.log('📝 Données du formulaire (simulé):', data);
 
-      // Simuler un délai d'API
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // // Simuler un délai d'API
+      // await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Simuler la réponse de l'API
-      const mockProfile = {
-        id: 'mock-id-123',
-        ...data,
-      };
+      // // Simuler la réponse de l'API
+      // const mockProfile = {
+      //   id: 'mock-id-123',
+      //   ...data,
+      // };
 
-      // Mettre à jour le contexte utilisateur
-      await updateUser(mockProfile);
+      // // Mettre à jour le contexte utilisateur
+      // await updateUser(mockProfile);
 
-      Alert.alert('Succès', 'Profil sauvegardé (mode simulation)');
+      // Alert.alert('Succès', 'Profil sauvegardé (mode simulation)');
 
-      // Rediriger vers home
-      router.replace('/(tabs)/home');
-
-      // MODE PRODUCTION - Décommentez quand l'API est prête
-      // const updatedProfile = await userService.updateProfile(data);
-      // await updateUser(updatedProfile);
+      // // Rediriger vers home
       // router.replace('/(tabs)/home');
 
+      // MODE PRODUCTION - Décommentez quand l'API est prête
+      const updatedProfile = await userService.updateProfile(data);
+      await updateUser(updatedProfile);
+      router.replace('/(tabs)/home');
     } catch (error) {
       console.error('Error saving profile:', error);
       Alert.alert('Erreur', 'Impossible de sauvegarder le profil (simulé)');
