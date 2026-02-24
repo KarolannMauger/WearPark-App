@@ -1,26 +1,13 @@
 export interface User {
-  id: string;
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  dateOfBirth?: string;
-  hasDiagnostic?: boolean;
-  disease?: string;
-  preferences?: {
+  dateOfBirth: string;
+  gender?: string;
+  hasDiagnosis: boolean;
+  diagnosis?: string;
+  userPreferences: {
     monthlyReportEmail: boolean;
     reportRecipients: string[];
   };
-}
-
-export interface ProfileData {
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  dateOfBirth?: string;
-  hasDiagnostic?: boolean;
-  disease?: string;
-  preferences?: {
-    monthlyReportEmail?: boolean;
-    reportRecipients?: string[];
-  };
-}
+};

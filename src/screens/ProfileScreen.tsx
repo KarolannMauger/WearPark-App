@@ -79,7 +79,7 @@ export default function ProfileScreen() {
           onPress={() => router.push("/editProfile")}
           style={profileStyles.editButton}
         >
-          <Text style={profileStyles.buttonText}>Edit Profil</Text>
+          <Text style={profileStyles.buttonText}>Modifier le profil</Text>
         </TouchableOpacity>
       </View>
     </View>

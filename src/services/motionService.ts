@@ -19,7 +19,6 @@ export const motionService = {
   getDayView: async (date: string): Promise<MotionDayData> => {
     try {
       const response = await privateApiClient.get(`/motion/view/day`, { params: { date } });
-      console.log('Motion getDayView response:', response.data);
 
       const decodedGraphData = base64ToFloatArray(response.data.graph.data);
 
@@ -36,7 +35,6 @@ export const motionService = {
         graphMin: isFinite(response.data.graph.min) ? response.data.graph.min : 0,
       };
     } catch (error) {
-      console.error('❌ Motion getDayView Error:', error);
       throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données journalières.');
     }
   },

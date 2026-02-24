@@ -3,26 +3,14 @@ import { useState } from "react";
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Platform, } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";
-import DateTimePicker from '@react-native-community/datetimepicker';
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { createUserFormStyles } from "../styles/components/userFormStyles";
 import Button from "./Button";
-
-export interface UserProfileData {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string; // Format YYYY-MM-DD
-    email: string;
-    hasDiagnostic: boolean;
-    disease?: string;
-    preferences: {
-        monthlyReportEmail: boolean;
-        reportRecipients: string[];
-    };
-}
+import { User } from "@/src/types/user";
 
 interface UserProfileFormProps {
-    initialData?: Partial<UserProfileData>;
-    onSubmit: (data: UserProfileData) => Promise<void>;
+    initialData?: User;
+    onSubmit: (data: User) => Promise<void>;
     submitButtonText?: string;
     isLoading?: boolean;
     emailEditable?: boolean;
@@ -36,69 +24,91 @@ const DISEASES = [
     "Autre",
 ];
 
-export default function UserProfileForm({ initialData, onSubmit, submitButtonText = "Enregistrer", isLoading = false, emailEditable = true, }: UserProfileFormProps) {
+const GENDERS = [
+    "Homme",
+    "Femme",
+    "Autre",
+    "Préfère ne pas dire",
+];
+
+export default function UserProfileForm({
+    initialData,
+    onSubmit,
+    submitButtonText = "Enregistrer",
+    isLoading = false,
+    emailEditable = true,
+}: UserProfileFormProps) {
     const theme = useTheme();
-    const userFormStyles = createUserFormStyles(theme);
+    const styles = createUserFormStyles(theme);
 
-    const [firstName, setFirstName] = useState(initialData?.firstName || "");
-    const [lastName, setLastName] = useState(initialData?.lastName || "");
-    const [email, setEmail] = useState(initialData?.email || "");
-
+    const [firstName, setFirstName] = useState(initialData?.firstName ?? "");
+    const [lastName, setLastName] = useState(initialData?.lastName ?? "");
+    const [email, setEmail] = useState(initialData?.email ?? "");
+    const [gender, setGender] = useState(initialData?.gender ?? GENDERS[0]);
     const [dateOfBirth, setDateOfBirth] = useState<Date>(
-        initialData?.dateOfBirth ? new Date(initialData.dateOfBirth) : new Date()
+        initialData?.dateOfBirth
+            ? new Date(initialData.dateOfBirth)
+            : new Date()
     );
+
     const [showDatePicker, setShowDatePicker] = useState(false);
 
-    const [hasDiagnostic, setHasDiagnostic] = useState(initialData?.hasDiagnostic || false);
-    const [disease, setDisease] = useState(initialData?.disease || DISEASES[0]);
+    const [hasDiagnosis, setHasDiagnosis] = useState(
+        initialData?.hasDiagnosis ?? false
+    );
+
+    const [diagnosis, setDiagnosis] = useState(
+        initialData?.diagnosis ?? DISEASES[0]
+    );
 
     const [monthlyReport, setMonthlyReport] = useState(
-        initialData?.preferences?.monthlyReportEmail || false
+        initialData?.userPreferences?.monthlyReportEmail ?? false
     );
+
     const [reportEmails, setReportEmails] = useState(
-        initialData?.preferences?.reportRecipients?.join(", ") || ""
+        initialData?.userPreferences?.reportRecipients?.join(", ") ?? ""
     );
 
     const [error, setError] = useState<string | null>(null);
 
-    const onDateChange = (event: any, selectedDate?: Date) => {
-        if (Platform.OS === 'android') {
+    const formatDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    };
+
+    const onDateChange = (_: any, selectedDate?: Date) => {
+        if (Platform.OS === "android") {
             setShowDatePicker(false);
         }
-
         if (selectedDate) {
             setDateOfBirth(selectedDate);
         }
     };
 
-    const formatDate = (date: Date): string => {
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    };
-
     const handleSubmit = async () => {
         setError(null);
 
-        if (!firstName || !lastName || !email) {
-            setError("Le prénom, nom et courriel sont requis.");
+        if (!firstName || !lastName || !dateOfBirth || !email) {
+            setError("Le prénom, nom, date de naissance et courriel sont requis.");
             return;
         }
 
         const emailList = reportEmails
             .split(",")
-            .map(e => e.trim())
-            .filter(e => e.length > 0);
+            .map((e) => e.trim())
+            .filter((e) => e.length > 0);
 
-        const data: UserProfileData = {
+        const data: User = {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
-            dateOfBirth: formatDate(dateOfBirth),
             email: email.toLowerCase().trim(),
-            hasDiagnostic,
-            disease: hasDiagnostic ? disease : undefined,
-            preferences: {
+            gender: gender,
+            dateOfBirth: formatDate(dateOfBirth),
+            hasDiagnosis,
+            diagnosis: hasDiagnosis ? diagnosis : undefined,
+            userPreferences: {
                 monthlyReportEmail: monthlyReport,
                 reportRecipients: emailList,
             },
@@ -117,7 +127,6 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
             contentContainerStyle={{ paddingBottom: 50 }}
             showsVerticalScrollIndicator={false}
         >
-            {/* Informations de base */}
             <Text style={theme.typography.h3}>Informations personnelles</Text>
 
             <Text style={theme.typography.inputLabel}>Prénom *</Text>
@@ -126,7 +135,7 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                 onChangeText={setFirstName}
                 placeholder="Prénom"
                 placeholderTextColor={theme.colors.placeholder}
-                style={userFormStyles.input}
+                style={styles.input}
                 editable={!isLoading}
             />
 
@@ -136,17 +145,31 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                 onChangeText={setLastName}
                 placeholder="Nom"
                 placeholderTextColor={theme.colors.placeholder}
-                style={userFormStyles.input}
+                style={styles.input}
                 editable={!isLoading}
             />
+
+            <Text style={theme.typography.inputLabel}>Genre</Text>
+            <View style={styles.pickerContainer}>
+                <Picker
+                    selectedValue={gender}
+                    onValueChange={setGender}
+                    enabled={!isLoading}
+                    style={styles.picker}
+                >
+                    {GENDERS.map((g) => (
+                        <Picker.Item key={g} label={g} value={g} />
+                    ))}
+                </Picker>
+            </View>
 
             <Text style={theme.typography.inputLabel}>Date de naissance *</Text>
             <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
                 disabled={isLoading}
-                style={userFormStyles.dateButton}
+                style={styles.dateButton}
             >
-                <Text style={userFormStyles.dateButtonText}>
+                <Text style={styles.dateButtonText}>
                     {formatDate(dateOfBirth)}
                 </Text>
             </TouchableOpacity>
@@ -155,20 +178,11 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                 <DateTimePicker
                     value={dateOfBirth}
                     mode="date"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    display={Platform.OS === "ios" ? "spinner" : "default"}
                     onChange={onDateChange}
-                    maximumDate={new Date()} // Pas de date future
+                    maximumDate={new Date()}
                     minimumDate={new Date(1900, 0, 1)}
                 />
-            )}
-
-            {Platform.OS === 'ios' && showDatePicker && (
-                <TouchableOpacity
-                    onPress={() => setShowDatePicker(false)}
-                    style={userFormStyles.datePickerDone}
-                >
-                    <Text style={userFormStyles.datePickerDoneText}>Terminé</Text>
-                </TouchableOpacity>
             )}
 
             <Text style={theme.typography.inputLabel}>Courriel *</Text>
@@ -180,38 +194,35 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                 autoCapitalize="none"
                 placeholderTextColor={theme.colors.placeholder}
                 style={[
-                    userFormStyles.input,
-                    !emailEditable && userFormStyles.inputDisabled
+                    styles.input,
+                    !emailEditable && styles.inputDisabled,
                 ]}
                 editable={!isLoading && emailEditable}
             />
 
-            {/* Diagnostic */}
-            <Text style={theme.typography.h3}>
-                Information médicale
-            </Text>
+            <Text style={theme.typography.h3}>Information médicale</Text>
 
-            <View style={userFormStyles.checkboxRow}>
+            <View style={styles.checkboxRow}>
                 <Checkbox
-                    value={hasDiagnostic}
-                    onValueChange={setHasDiagnostic}
+                    value={hasDiagnosis}
+                    onValueChange={setHasDiagnosis}
                     disabled={isLoading}
-                    color={hasDiagnostic ? theme.colors.primary : undefined}
+                    color={hasDiagnosis ? theme.colors.primary : undefined}
                 />
                 <Text style={theme.typography.checkboxLabel}>
                     J'ai un diagnostic
                 </Text>
             </View>
 
-            {hasDiagnostic && (
+            {hasDiagnosis && (
                 <>
                     <Text style={theme.typography.inputLabel}>Maladie</Text>
-                    <View style={userFormStyles.pickerContainer}>
+                    <View style={styles.pickerContainer}>
                         <Picker
-                            selectedValue={disease}
-                            onValueChange={setDisease}
+                            selectedValue={diagnosis}
+                            onValueChange={setDiagnosis}
                             enabled={!isLoading}
-                            style={userFormStyles.picker}
+                            style={styles.picker}
                         >
                             {DISEASES.map((d) => (
                                 <Picker.Item key={d} label={d} value={d} />
@@ -221,12 +232,9 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                 </>
             )}
 
-            {/* Préférences */}
-            <Text style={theme.typography.h3}>
-                Préférences
-            </Text>
+            <Text style={theme.typography.h3}>Préférences</Text>
 
-            <View style={userFormStyles.checkboxRow}>
+            <View style={styles.checkboxRow}>
                 <Checkbox
                     value={monthlyReport}
                     onValueChange={setMonthlyReport}
@@ -241,7 +249,7 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
             {monthlyReport && (
                 <>
                     <Text style={theme.typography.inputLabel}>
-                        Courriel(s) destinataire(s) (séparés par des virgules)
+                        Courriel(s) destinataire(s)
                     </Text>
                     <TextInput
                         value={reportEmails}
@@ -250,25 +258,22 @@ export default function UserProfileForm({ initialData, onSubmit, submitButtonTex
                         keyboardType="email-address"
                         autoCapitalize="none"
                         placeholderTextColor={theme.colors.placeholder}
-                        style={userFormStyles.input}
+                        style={styles.input}
                         editable={!isLoading}
                     />
                 </>
             )}
 
-            {/* Erreur */}
             {error && (
-                <View>
-                    <Text style={userFormStyles.errorText}>{error}</Text>
-                </View>
+                <Text style={styles.errorText}>{error}</Text>
             )}
 
-            {/* Bouton submit */}
             <View style={{ marginTop: 20 }}>
                 <Button
                     onPress={handleSubmit}
                     title={isLoading ? "Chargement..." : submitButtonText}
-                    disabled={isLoading} style={undefined} textStyle={undefined} />
+                    disabled={isLoading} style={undefined} textStyle={undefined}
+                />
             </View>
         </ScrollView>
     );

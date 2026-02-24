@@ -8,6 +8,7 @@ import LoadingView from '../components/LoadingView';
 import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
 import { ApiError } from '@/src/errors/ApiError';
+import Button from '../components/Button';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -25,17 +26,14 @@ export default function HomeScreen() {
   const loadTodayData = async () => {
     setLoading(true);
     setError(null);
-    console.log("Loading today's motion data...");
     try {
-      // Simulation de date : 2024-01-01
-      const SIMULATED_DATE = '2024-01-01T00:00:00Z';
-      const data = await motionService.getDayView(SIMULATED_DATE);
-    //   const data = await motionService.getTodayView();
+      // // Simulation de date : 2024-01-01
+      // const SIMULATED_DATE = '2024-01-01T00:00:00Z';
+      // const data = await motionService.getDayView(SIMULATED_DATE);
+      const data = await motionService.getTodayView();
 
-      // Toujours stocker les données, même si episodeCount = 0
       setTodayData(data);
     } catch (err: any) {
-      console.error('Error loading today data:', err);
       if (err instanceof ApiError) {
         if (err.status === 404) setTodayData(null);
         else setError(err.message);
@@ -99,19 +97,6 @@ export default function HomeScreen() {
             Aucun épisode détecté aujourd'hui
           </Text>
         )}
-
-        <TouchableOpacity
-          onPress={loadTodayData}
-          style={{
-            marginTop: 12,
-            padding: 10,
-            backgroundColor: theme.colors.primary,
-            borderRadius: 6,
-            alignItems: 'center'
-          }}
-        >
-          <Text style={{ color: '#fff', fontWeight: 'bold' }}>Recharger</Text>
-        </TouchableOpacity>
       </View>
 
       <View>
@@ -159,6 +144,8 @@ export default function HomeScreen() {
           </View>
         </View>
       </View>
+
+      <Button onPress={loadTodayData} title="Recharger" style={{ marginTop: 20 }} textStyle={undefined} />
     </ScrollView>
   );
 }

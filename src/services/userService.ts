@@ -1,23 +1,12 @@
-import { ApiError } from '../errors/ApiError';
-import { privateApiClient } from './api';
-import { UserProfileData } from '@/src/components/UserProfileForm';
+import { ApiError } from "../errors/ApiError";
+import { privateApiClient } from "./api";
+import { User } from "@/src/types/user";
+import { formatDateForAPI } from "@/src/utils/date";
 
-export interface User {
-  id: string;
-  firstName?: string;
-  lastName?: string;
-  email: string;
-  dateOfBirth?: string;
-  hasDiagnostic?: boolean;
-  disease?: string;
-  preferences?: {
-    monthlyReportEmail: boolean;
-    reportRecipients: string[];
-  };
-}
-
-
-function handleUserServiceError(error: unknown, defaultMessage: string = "Une erreur est survenue"): never {
+function handleUserServiceError(
+  error: unknown,
+  defaultMessage: string = "Une erreur est survenue"
+): never {
   const status = (error as any)?.response?.status;
   const backendMessage = (error as any)?.response?.data?.message;
   const backendCode = (error as any)?.response?.data?.code || "SERVER_ERROR";
@@ -46,18 +35,26 @@ function handleUserServiceError(error: unknown, defaultMessage: string = "Une er
 export const userService = {
   getProfile: async (): Promise<User> => {
     try {
-      const response = await privateApiClient.get<User>('/user');
+      const response = await privateApiClient.get<User>("/user");
       return response.data;
     } catch (error) {
       handleUserServiceError(error, "Impossible de récupérer le profil.");
     }
   },
 
-
-  updateProfile: async (data: Partial<UserProfileData>): Promise<User> => {
+  updateProfile: async (data: Partial<User>): Promise<void> => {
     try {
-      const response = await privateApiClient.post<User>('/user', data);
-      return response.data;
+      const safePayload: Partial<User> = { ...data };
+
+      safePayload.preferences = safePayload.preferences || { monthlyReportEmail: false, reportRecipients: [] };
+
+      safePayload.dateOfBirth = safePayload.dateOfBirth ? formatDateForAPI(safePayload.dateOfBirth) || undefined : undefined;
+
+      if (!safePayload.hasDiagnosis || !safePayload.diagnosis) {
+        delete safePayload.diagnosis;
+      }
+
+      await privateApiClient.post("/user", safePayload);
     } catch (error) {
       handleUserServiceError(error, "Erreur lors de la mise à jour du profil.");
     }
