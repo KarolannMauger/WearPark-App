@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createHomeStyles } from '../styles/screens/homeStyles';
@@ -9,6 +9,7 @@ import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
 import { ApiError } from '@/src/errors/ApiError';
 import Button from '../components/Button';
+import { motionWebSocketService } from '../services/motionWebSocketService';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -21,15 +22,26 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadTodayData();
+
+    motionWebSocketService.connect();
+
+    const unsubscribe = motionWebSocketService.subscribe((intensity) => {
+      setTodayData(prev => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          graphData: [...prev.graphData, intensity],
+        };
+      });
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const loadTodayData = async () => {
     setLoading(true);
     setError(null);
     try {
-      // // Simulation de date : 2024-01-01
-      // const SIMULATED_DATE = '2024-01-01T00:00:00Z';
-      // const data = await motionService.getDayView(SIMULATED_DATE);
       const data = await motionService.getTodayView();
 
       setTodayData(data);
@@ -87,7 +99,7 @@ export default function HomeScreen() {
         {graphData.length > 0 ? (
           <>
             <MotionChart
-              data={graphData.slice(0, 100)}
+              data={graphData.slice(-100)}
               height={200}
               label="Accéléromètre (norme)"
             />

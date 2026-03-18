@@ -16,17 +16,17 @@ class MotionWebSocketService {
     this.ws = new WebSocket(`ws://localhost:8080/ws/motion?jwt=${token}`);
 
     this.ws.onopen = () => console.log('WS connected');
-    
+
     this.ws.onmessage = async (event) => {
 
-  const blob: Blob = event.data;
-  const arrayBuffer = await blob.arrayBuffer();
-  
-  const view = new DataView(arrayBuffer);
-  const value = view.getFloat32(0, true);
-  
-  this.handlers.forEach(handler => handler(value));
-};
+      const blob: Blob = event.data;
+      const arrayBuffer = await blob.arrayBuffer();
+
+      const view = new DataView(arrayBuffer);
+      const value = view.getFloat32(0, true);
+
+      this.handlers.forEach(handler => handler(value));
+    };
 
     this.ws.onerror = (error) => console.error('WS error', error);
     this.ws.onclose = () => console.log('WS disconnected');
