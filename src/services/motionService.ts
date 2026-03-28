@@ -15,6 +15,15 @@ export interface MotionDayData {
   graphMin: number;
 }
 
+export interface MotionMonthData {
+  year: number;
+  month: number;
+  episodes: Array<{
+    date: string;
+    count: number;
+  }>;
+}
+
 export const motionService = {
   getDayView: async (date: string): Promise<MotionDayData> => {
     try {
@@ -42,5 +51,22 @@ export const motionService = {
   getTodayView: async (): Promise<MotionDayData> => {
     const today = new Date().toISOString();
     return motionService.getDayView(today);
+  },
+
+  getMonthView: async (year: number, month: number): Promise<MotionMonthData> => {
+    try {
+      const response = await privateApiClient.get(`/motion/view/month`, { params: { year, month } });
+      const data = response.data;
+      return {
+        year: data.year,
+        month: data.month,
+        episodes: data.episodes.map((e: any) => ({
+          date: e.date,
+          count: e.count,
+        })),
+      };
+    } catch (error) {
+      throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données mensuelles.');
+    }
   },
 };
