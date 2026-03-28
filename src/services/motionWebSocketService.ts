@@ -2,7 +2,10 @@ import * as SecureStore from 'expo-secure-store';
 import { ApiError } from '../errors/ApiError';
 import { ENV } from '@/src/config/env';
 
-const wsUrl = ENV.apiUrl.replace('http://', 'ws://').replace('https://', 'wss://');
+const wsUrl = ENV.apiUrl
+  .replace('http://', 'ws://')
+  .replace('https://', 'wss://')
+  .replace(/\/$/, '');
 
 type MessageHandler = (intensity: number) => void;
 

@@ -3,7 +3,7 @@ import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createHomeStyles } from '../styles/screens/homeStyles';
 import { motionService, MotionDayData } from '@/src/services/motionService';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import LoadingView from '../components/LoadingView';
 import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
@@ -22,10 +22,12 @@ export default function HomeScreen() {
 
   useEffect(() => {
     loadTodayData();
+  }, []);
 
+  useEffect(() => {
     motionWebSocketService.connect();
 
-    const unsubscribe = motionWebSocketService.subscribe((intensity) => {
+    const unsubscribe = motionWebSocketService.subscribe((intensity: number) => {
       setTodayData(prev => {
         if (!prev) return prev;
         return {
@@ -38,13 +40,14 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, []);
 
-  const loadTodayData = async () => {
+  const loadTodayData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await motionService.getTodayView();
-
       setTodayData(data);
+      motionWebSocketService.disconnect();
+      motionWebSocketService.connect();
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.status === 404) setTodayData(null);
@@ -55,7 +58,7 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const intensityLabel = todayData
     ? todayData.avgIntensity < 1 ? 'Faible'
