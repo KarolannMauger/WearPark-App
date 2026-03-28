@@ -23,15 +23,18 @@ class MotionWebSocketService {
 
     this.ws.onopen = () => console.log('WS connected');
 
-    this.ws.onmessage = async (event) => {
-
+    this.ws.onmessage = (event) => {
       const blob: Blob = event.data;
-      const arrayBuffer = await blob.arrayBuffer();
+      const reader = new FileReader();
 
-      const view = new DataView(arrayBuffer);
-      const value = view.getFloat32(0, true);
+      reader.onload = () => {
+        const arrayBuffer = reader.result as ArrayBuffer;
+        const view = new DataView(arrayBuffer);
+        const value = view.getFloat32(0, true); // little endian
+        this.handlers.forEach(handler => handler(value));
+      };
 
-      this.handlers.forEach(handler => handler(value));
+      reader.readAsArrayBuffer(blob);
     };
 
     this.ws.onerror = (error) => console.error('WS error', error);
