@@ -7,11 +7,14 @@ const wsUrl = ENV.apiUrl
   .replace('https://', 'wss://')
   .replace(/\/$/, '');
 
-type MessageHandler = (intensity: number) => void;
+type MessageHandler = (intensities: number[]) => void;
 
 class MotionWebSocketService {
   private ws: WebSocket | null = null;
   private handlers: Set<MessageHandler> = new Set();
+  private pendingPoints: number[] = [];
+  private flushTimer: ReturnType<typeof setInterval> | null = null;
+  private pointCount = 0;
 
   async connect(): Promise<void> {
     if (this.ws?.readyState === WebSocket.OPEN) return;
@@ -23,18 +26,18 @@ class MotionWebSocketService {
 
     this.ws.onopen = () => console.log('WS connected');
 
+    this.flushTimer = setInterval(() => {
+      if (this.pendingPoints.length === 0) return;
+      const points = [...this.pendingPoints];
+      this.pendingPoints = [];
+      this.handlers.forEach(handler => handler(points));
+    }, 500);
+
     this.ws.onmessage = (event) => {
-      const blob: Blob = event.data;
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        const arrayBuffer = reader.result as ArrayBuffer;
-        const view = new DataView(arrayBuffer);
-        const value = view.getFloat32(0, true); // little endian
-        this.handlers.forEach(handler => handler(value));
-      };
-
-      reader.readAsArrayBuffer(blob);
+      const arrayBuffer = event.data as ArrayBuffer;
+      const view = new DataView(arrayBuffer);
+      const value = view.getFloat32(0, true);
+      this.pendingPoints.push(value); // accumule sans setState
     };
 
     this.ws.onerror = (error) => console.error('WS error', error);
@@ -49,6 +52,9 @@ class MotionWebSocketService {
   disconnect(): void {
     this.ws?.close();
     this.ws = null;
+  }
+
+  clearHandlers(): void {
     this.handlers.clear();
   }
 }

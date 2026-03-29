@@ -20,31 +20,14 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadTodayData();
-  }, []);
-
-  useEffect(() => {
-    motionWebSocketService.connect();
-
-    const unsubscribe = motionWebSocketService.subscribe((intensity: number) => {
-      setTodayData(prev => {
-        if (!prev) return prev;
-        return {
-          ...prev,
-          graphData: [...prev.graphData, intensity],
-        };
-      });
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const MAX_GRAPH_POINTS = 500;
 
   const loadTodayData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await motionService.getTodayView();
+      console.log(`REST todayData: ${data.graphData.length} points`);
       setTodayData(data);
       motionWebSocketService.disconnect();
       motionWebSocketService.connect();
@@ -58,6 +41,40 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
+  }, []);
+
+  useEffect(() => {
+    loadTodayData();
+  }, [loadTodayData]);
+
+  useEffect(() => {
+    motionWebSocketService.connect();
+
+    const unsubscribe = motionWebSocketService.subscribe((intensities: number[]) => {
+      setTodayData(prev => {
+        const current = prev ?? {
+          date: new Date(),
+          avgIntensity: 0,
+          avgDuration: 0,
+          episodeCount: 0,
+          lastEpisode: null,
+          graphData: [],
+          graphStart: new Date(),
+          graphEnd: new Date(),
+          graphMax: 0,
+          graphMin: 0,
+        };
+        const updated = [...current.graphData, ...intensities];
+        return {
+          ...current,
+          graphData: updated.length > MAX_GRAPH_POINTS
+            ? updated.slice(-MAX_GRAPH_POINTS)
+            : updated,
+        };
+      });
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const intensityLabel = todayData
@@ -102,7 +119,7 @@ export default function HomeScreen() {
         {graphData.length > 0 ? (
           <>
             <MotionChart
-              data={graphData.slice(-100)}
+              data={graphData.slice()}
               height={200}
               label="Accéléromètre (norme)"
             />
