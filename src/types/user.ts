@@ -2,6 +2,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
+  role: 'USER' | 'ADMIN';
   dateOfBirth: string;
   gender?: string;
   hasDiagnosis: boolean;
@@ -11,3 +12,19 @@ export interface User {
     reportRecipients: string[];
   };
 };
+
+export interface UserSummary {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: 'user' | 'admin';
+  createdAt: string;
+}
+
+export interface AdminUsersResponse {
+  users: UserSummary[];
+  total: number;
+  page: number;
+  limit: number;
+}

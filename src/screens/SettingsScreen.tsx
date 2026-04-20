@@ -1,7 +1,8 @@
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { useUser } from "../context/UserContext";
-import { View, Text, TouchableOpacity, Switch, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Switch } from "react-native";
+import { confirm } from "@/src/utils/alert";
 import BackHeader from "../components/BackHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { createSettingsStyles } from "../styles/screens/settingsStyles";
@@ -13,22 +14,12 @@ export default function SettingsScreen() {
   const settingsStyles = createSettingsStyles(theme);
 
   const handleLogout = () => {
-    Alert.alert(
+    confirm(
       "Logout",
       "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            await logout();
-          }
-        }
-      ]
+      async () => {
+        await logout();
+      }
     );
   };
 

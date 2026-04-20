@@ -1,4 +1,4 @@
-import * as SecureStore from 'expo-secure-store';
+import { storage } from "@/src/utils/storage";
 import { ApiError } from '../errors/ApiError';
 import { ENV } from '@/src/config/env';
 
@@ -19,7 +19,7 @@ class MotionWebSocketService {
   async connect(): Promise<void> {
     if (this.ws?.readyState === WebSocket.OPEN) return;
 
-    const token = await SecureStore.getItemAsync('userToken');
+    const token = await storage.get('userToken');
     if (!token) throw new ApiError(401, 'AUTH_ERROR', 'Token manquant.');
 
     this.ws = new WebSocket(`${wsUrl}/ws/motion?jwt=${token}`);

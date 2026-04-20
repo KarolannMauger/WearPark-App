@@ -1,7 +1,6 @@
 import axios from "axios";
 import { publicApiClient } from "./api";
-import * as SecureStore from "expo-secure-store";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { storage } from "@/src/utils/storage";
 import { ApiError } from "@/src/errors/ApiError";
 import { validateEmail, validatePassword } from "../utils/validators";
 
@@ -48,6 +47,8 @@ function handleAuthError(error: unknown): never {
     }
   }
 
+  console.log("🔥 NON AXIOS ERROR:", error);
+
   throw new ApiError(0, "NETWORK_ERROR", "Problème réseau.");
 }
 
@@ -80,21 +81,21 @@ export const authService = {
         { email, password }
       );
 
-      await SecureStore.setItemAsync("userToken", response.data.jwt);
-      await AsyncStorage.setItem("user", JSON.stringify({ email }));
+      await storage.set("userToken", response.data.jwt);
+      await storage.set("user", JSON.stringify({ email }));
     } catch (error) {
       handleAuthError(error);
     }
   },
 
   logout: async (): Promise<void> => {
-    await SecureStore.deleteItemAsync("userToken");
-    await AsyncStorage.removeItem("user");
+    await storage.remove("userToken");
+    await storage.remove("user");
   },
 
   getStoredUser: async (): Promise<User | null> => {
     try {
-      const userJson = await AsyncStorage.getItem("user");
+      const userJson = await storage.get("user");
       return userJson ? JSON.parse(userJson) : null;
     } catch {
       return null;
@@ -102,7 +103,7 @@ export const authService = {
   },
 
   isAuthenticated: async (): Promise<boolean> => {
-    const token = await SecureStore.getItemAsync("userToken");
+    const token = await storage.get("userToken");
     return !!token;
   },
 };

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useUser } from "@/src/context/UserContext";
@@ -25,6 +25,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const isWeb = Platform.OS === 'web';
+
   const handleLogin = async () => {
     setError(null);
 
@@ -37,7 +39,7 @@ export default function Login() {
     }
 
     if (!password) {
-      setError("Password is required.");
+      setError("Le mot de passe est requis.");
       return;
     }
 
@@ -49,19 +51,109 @@ export default function Login() {
       if (err instanceof ApiError) {
         setError(err.message);
       } else {
-        setError("Unexpected error. Please try again.");
+        setError("Erreur inattendue. Veuillez réessayer.");
       }
     } finally {
       setLoading(false);
     }
   };
 
+  // Layout Web simplifié
+  if (isWeb) {
+    return (
+      <View style={{ 
+        minHeight: '100vh', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        backgroundColor: theme.colors.background,
+      }}>
+        <View style={{ 
+          width: '100%', 
+          maxWidth: 400, 
+          padding: 40,
+          backgroundColor: theme.colors.card,
+          borderRadius: 12,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.1,
+          shadowRadius: 12,
+        }}>
+          <Image
+            source={require('../../assets/images/wearpark-logo-rounded.png')}
+            style={{ height: 80, alignSelf: 'center', marginBottom: 20 }}
+            resizeMode="contain"
+          />
+          <Text style={[theme.typography.h2, { textAlign: 'center', marginBottom: 30 }]}>
+            Connexion
+          </Text>
+
+          <View style={authStyles.inputGroup}>
+            <Text style={authStyles.label}>Email</Text>
+            <TextInput
+              style={authStyles.input}
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              placeholder="votre@email.com"
+            />
+          </View>
+
+          <View style={authStyles.inputGroup}>
+            <Text style={authStyles.label}>Mot de passe</Text>
+            <View style={authStyles.passwordWrapper}>
+              <TextInput
+                style={authStyles.inputPassword}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry={!showPassword}
+                placeholder="••••••••"
+                autoCapitalize="none"
+                onSubmitEditing={handleLogin}
+              />
+              <TouchableOpacity
+                onPress={() => setShowPassword(!showPassword)}
+                style={authStyles.eyeButton}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-outline" : "eye-off-outline"}
+                  size={22}
+                  color={theme.colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {error && <Text style={authStyles.error}>{error}</Text>}
+
+          <TouchableOpacity
+            style={authStyles.button}
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={authStyles.buttonText}>SE CONNECTER</Text>
+            )}
+          </TouchableOpacity>
+
+          <View style={authStyles.loginRow}>
+            <Text style={authStyles.loginText}>Pas de compte ? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+              <Text style={authStyles.loginLink}>S'inscrire</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Layout Mobile (existant)
   return (
     <View style={screenStyles.redContainer}>
       <KeyboardAwareScrollView
-        contentContainerStyle={{
-          flexGrow: 1,
-        }}
+        contentContainerStyle={{ flexGrow: 1 }}
         enableOnAndroid={true}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -89,19 +181,19 @@ export default function Login() {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
-              placeholder="Enter your email"
+              placeholder="votre@email.com"
             />
           </View>
 
           <View style={authStyles.inputGroup}>
-            <Text style={authStyles.label}>Password</Text>
+            <Text style={authStyles.label}>Mot de passe</Text>
             <View style={authStyles.passwordWrapper}>
               <TextInput
                 style={authStyles.inputPassword}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
-                placeholder="Enter your password"
+                placeholder="••••••••"
                 autoCapitalize="none"
                 onSubmitEditing={handleLogin}
               />
@@ -128,14 +220,14 @@ export default function Login() {
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={authStyles.buttonText}>LOG IN</Text>
+              <Text style={authStyles.buttonText}>SE CONNECTER</Text>
             )}
           </TouchableOpacity>
 
           <View style={authStyles.loginRow}>
-            <Text style={authStyles.loginText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => router.push('/register')}>
-              <Text style={authStyles.loginLink}>Sign up</Text>
+            <Text style={authStyles.loginText}>Pas de compte ? </Text>
+            <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+              <Text style={authStyles.loginLink}>S'inscrire</Text>
             </TouchableOpacity>
           </View>
         </View>

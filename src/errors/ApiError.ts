@@ -10,7 +10,7 @@ export class ApiError<T = unknown> extends Error {
     description: string,
     details?: T
   ) {
-    super(description); // ← on passe description à la classe Error
+    super(description);
 
     this.name = "ApiError";
     this.status = status;

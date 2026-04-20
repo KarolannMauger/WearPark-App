@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { storage } from "@/src/utils/storage";
 import { ENV } from '@/src/config/env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const baseConfig = {
   baseURL: ENV.apiUrl,
@@ -26,7 +25,7 @@ export const privateApiClient: AxiosInstance = axios.create(baseConfig);
 
 privateApiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
-    const token = await SecureStore.getItemAsync('userToken');
+    const token = await storage.get('userToken');
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -43,8 +42,8 @@ privateApiClient.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
-      await SecureStore.deleteItemAsync('userToken');
-      await AsyncStorage.removeItem('user');
+      await storage.remove('userToken');
+      await storage.remove('user');
     }
 
     return Promise.reject(error);

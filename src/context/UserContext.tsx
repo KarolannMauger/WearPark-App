@@ -1,6 +1,6 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode, } from "react";
 import { useRouter, useSegments } from "expo-router";
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/src/utils/storage";
 import { authService } from "@/src/services/authService";
 import { userService } from "@/src/services/userService";
 import { User } from "@/src/types/user";
@@ -37,6 +37,10 @@ const normalizeUser = (user: User): User => ({
   },
 });
 
+const getHomeRoute = (user: User) => {
+  if (user.role === "ADMIN") return "/(admin)/home";
+  return "/(tabs)/home";
+};
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -45,14 +49,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const segments = useSegments();
 
-
   useEffect(() => {
     loadUser();
   }, []);
 
   const loadUser = async () => {
     try {
-      const token = await SecureStore.getItemAsync("userToken");
+      const token = await storage.get("userToken");
 
       if (token) {
         const profile = await userService.getProfile();
@@ -65,41 +68,49 @@ export function UserProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   useEffect(() => {
     if (isLoading) return;
 
     const segment = segments[0];
+
+    const isAuthGroup = segment === "(auth)";
+    const isAdminGroup = segment === "(admin)";
+    const isTabsGroup = segment === "(tabs)";
     const isWelcome = !segment || segment === "index";
-    const isAuth =
-      segment === "login" || segment === "register";
-    const isCompleteProfile =
-      segment === "complete-profile";
+    const isCompleteProfile = segments.includes("complete-profile");
+
+    const isAuth = segment === "(auth)";
 
     if (!user && !isAuth && !isWelcome) {
-      router.push("/");
+      router.replace("/");
       return;
     }
 
-    if (
-      user &&
-      !isProfileComplete(user) &&
-      !isCompleteProfile
-    ) {
-      router.push("/completeProfile");
+    if (!user) return;
+
+    if (isAdminGroup && user.role !== "ADMIN") {
+      router.replace("/(tabs)/home");
       return;
     }
 
-    if (
-      user &&
-      isProfileComplete(user) &&
-      isAuth
-    ) {
-      router.push("/(tabs)/home");
+    if (user.role === "ADMIN") {
+      if (isAuth || isWelcome) {
+        router.replace("/dashboard");
+      }
       return;
     }
+
+    if (!isProfileComplete(user) && !isCompleteProfile) {
+      router.replace("/(auth)/complete-profile");
+      return;
+    }
+
+    if (isProfileComplete(user) && isAuth) {
+      router.replace("/(tabs)/home");
+      return;
+    }
+
   }, [user, segments, isLoading]);
-
 
   const login = async (
     email: string,
@@ -107,12 +118,18 @@ export function UserProvider({ children }: { children: ReactNode }) {
   ): Promise<void> => {
     try {
       await authService.login(email, password);
+
       const profile = await userService.getProfile();
-      setUser(normalizeUser(profile));
+      const normalized = normalizeUser(profile);
+
+      setUser(normalized);
+
+      router.replace(getHomeRoute(normalized));
     } catch (error) {
       console.error("Login error in UserContext:", error);
       throw error;
     }
+
   };
 
   const register = async (
@@ -124,25 +141,32 @@ export function UserProvider({ children }: { children: ReactNode }) {
       await authService.login(email, password);
 
       const profile = await userService.getProfile();
-      setUser(normalizeUser(profile));
+      const normalized = normalizeUser(profile);
 
-      router.push("/complete-profile");
+      setUser(normalized);
+
+      // Admin skip profile completion
+      if (normalized.role === "ADMIN") {
+        router.replace("/(admin)/home");
+      } else {
+        router.replace("/(auth)/complete-profile");
+      }
     } catch (error) {
       console.error("Register error in UserContext:", error);
       throw error;
     }
+
   };
 
   const logout = async (): Promise<void> => {
     await authService.logout();
     setUser(null);
+    router.replace("/");
   };
 
-  // Update local state seulement (après refetch)
   const updateUser = (updatedUser: User): void => {
     setUser(normalizeUser(updatedUser));
   };
-
 
   if (isLoading) {
     return (
@@ -152,9 +176,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           justifyContent: "center",
           alignItems: "center",
         }}
-      >
-        <ActivityIndicator size="large" color="#000" />
-      </View>
+      > <ActivityIndicator size="large" color="#000" /> </View>
     );
   }
 
