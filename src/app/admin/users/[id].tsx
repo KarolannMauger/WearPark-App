@@ -1,4 +1,4 @@
-import UserDetailsScreen from '@/src/screens/userDetailsScreen';
+import UserDetailsScreen from '@/src/screens/UserDetailsScreen';
 
 export default function UserDetails() {
   return <UserDetailsScreen />;
