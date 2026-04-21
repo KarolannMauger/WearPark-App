@@ -47,8 +47,6 @@ function handleAuthError(error: unknown): never {
     }
   }
 
-  console.log("🔥 NON AXIOS ERROR:", error);
-
   throw new ApiError(0, "NETWORK_ERROR", "Problème réseau.");
 }
 

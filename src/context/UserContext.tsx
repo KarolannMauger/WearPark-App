@@ -38,7 +38,7 @@ const normalizeUser = (user: User): User => ({
 });
 
 const getHomeRoute = (user: User) => {
-  if (user.role === "ADMIN") return "/(admin)/home";
+  if (user.role === "ADMIN") return "/admin/dashboard";
   return "/(tabs)/home";
 };
 
@@ -95,7 +95,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     if (user.role === "ADMIN") {
       if (isAuth || isWelcome) {
-        router.replace("/dashboard");
+        router.replace("/admin/dashboard");
       }
       return;
     }

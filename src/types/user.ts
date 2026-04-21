@@ -23,8 +23,9 @@ export interface UserSummary {
 }
 
 export interface AdminUsersResponse {
-  users: UserSummary[];
-  total: number;
+  content: UserSummary[];
   page: number;
-  limit: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
 }
