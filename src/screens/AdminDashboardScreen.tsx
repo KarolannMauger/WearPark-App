@@ -4,7 +4,7 @@ import { useTheme } from '@/src/context/ThemeContext';
 import { createScreenStyles } from '@/src/styles/screens/screenStyles';
 import { MaterialIcons } from '@expo/vector-icons';
 import { adminService } from '@/src/services/adminService';
-import { UserSummary } from '@/src/types/user';
+import { UserSummary } from '@/src/types/adminUserTypes';
 import LoadingView from '@/src/components/LoadingView';
 import ErrorView from '@/src/components/ErrorView';
 import { ApiError } from '@/src/errors/ApiError';

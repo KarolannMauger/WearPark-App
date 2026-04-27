@@ -1,6 +1,6 @@
 import { privateApiClient } from './api';
 import { ApiError } from '../errors/ApiError';
-import { UserSummary, AdminUsersResponse } from '../types/user';
+import { UserSummary, AdminUsersResponse, AdminUserDetailsRequest } from '../types/adminUserTypes';
 
 export const adminService = {
   getUsers: async (params?: {
@@ -62,6 +62,18 @@ export const adminService = {
         error.response?.status ?? 0,
         "",
         error.response?.data?.message || "Erreur lors de la modification du rôle."
+      );
+    }
+  },
+
+  updateUser: async (id: string, user: AdminUserDetailsRequest): Promise<void> => {
+    try {
+      await privateApiClient.patch(`/admin/users/${id}/details`, user);
+    } catch (error: any) {
+      throw new ApiError(
+        error.response?.status ?? 0,
+        "",
+        error.response?.data?.message || "Erreur lors de la mise à jour des détails."
       );
     }
   },

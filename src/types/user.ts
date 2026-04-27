@@ -12,20 +12,3 @@ export interface User {
     reportRecipients: string[];
   };
 };
-
-export interface UserSummary {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'user' | 'admin';
-  createdAt: string;
-}
-
-export interface AdminUsersResponse {
-  content: UserSummary[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
