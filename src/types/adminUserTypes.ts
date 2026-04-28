@@ -5,6 +5,7 @@ export interface UserSummary {
     lastName: string;
     role: 'user' | 'admin';
     createdAt: string;
+    isDeleted: boolean;
 }
 
 export interface AdminUsersResponse {
@@ -44,5 +45,6 @@ export interface AdminUserDetailsResponse {
     diagnosis?: string;
     createdAt: string;
     updatedAt: string;
+    isDeleted: boolean;
     devices: Device[];
 }

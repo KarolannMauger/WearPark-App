@@ -1,14 +1,23 @@
 import { Slot } from 'expo-router';
-import { View, Text, Platform, Image } from 'react-native';
+import { View, Text, Platform, Image, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/src/context/ThemeContext';
+import { useUser } from '@/src/context/UserContext';
+import { useRouter } from 'expo-router';
 import SidebarLink from '@/src/components/SidebarLink';
 
 export default function AdminLayout() {
     const theme = useTheme();
+    const { logout } = useUser();
+    const router = useRouter();
 
     if (Platform.OS !== 'web') {
-        return <Slot />; // mobile fallback
+        return <Slot />;
     }
+
+    const handleLogout = async () => {
+        await logout();
+        router.replace('/');
+    };
 
     return (
         <View style={{ flex: 1, flexDirection: 'row' }}>
@@ -38,12 +47,26 @@ export default function AdminLayout() {
                     height: 60,
                     borderBottomWidth: 1,
                     borderColor: theme.colors.border,
-                    justifyContent: 'center',
-                    paddingHorizontal: 20
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingHorizontal: 20,
                 }}>
-                    <Text style={theme.typography.h3}>
-                        Admin Console
-                    </Text>
+                    <Text style={theme.typography.h3}>Admin Console</Text>
+
+                    <TouchableOpacity
+                        onPress={handleLogout}
+                        style={{
+                            paddingHorizontal: 16,
+                            paddingVertical: 8,
+                            borderRadius: 8,
+                            backgroundColor: theme.colors.error,
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: '600', fontSize: 13 }}>
+                            Logout
+                        </Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* CONTENT */}

@@ -7,6 +7,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import { createUserFormStyles } from "../styles/components/userFormStyles";
 import Button from "./Button";
 import { User } from "@/src/types/user";
+import { GENDERS, DISEASES } from "../constants/user.constants";
 
 interface UserProfileFormProps {
     initialData?: User;
@@ -15,21 +16,6 @@ interface UserProfileFormProps {
     isLoading?: boolean;
     emailEditable?: boolean;
 }
-
-const DISEASES = [
-    "Parkinson",
-    "Alzheimer",
-    "Sclérose en plaques",
-    "Épilepsie",
-    "Autre",
-];
-
-const GENDERS = [
-    "Homme",
-    "Femme",
-    "Autre",
-    "Préfère ne pas dire",
-];
 
 export default function UserProfileForm({
     initialData,
