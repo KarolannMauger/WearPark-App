@@ -26,13 +26,13 @@ export default function AdminLayout() {
             <View style={{
                 width: 240,
                 backgroundColor: theme.colors.background,
-                padding: 20,
+                paddingHorizontal: 20,
                 borderRightWidth: 1,
                 borderColor: theme.colors.border
             }}>
                 <Image
-                    source={require('../../../assets/images/wearkpark-logo-white.png')}
-                    style={{ width: '80%', height: 60, marginTop: -20, marginBottom: 40 }}
+                    source={require('../../../assets/images/wearkpark-logo.png')}
+                    style={{ width: '100%', height: 60,  marginBottom: 40 }}
                     resizeMode="contain"
                 />
 
@@ -52,7 +52,7 @@ export default function AdminLayout() {
                     justifyContent: 'space-between',
                     paddingHorizontal: 20,
                 }}>
-                    <Text style={theme.typography.h3}>Admin Console</Text>
+                    <Text style={theme.typography.h3}>Console admin</Text>
 
                     <TouchableOpacity
                         onPress={handleLogout}

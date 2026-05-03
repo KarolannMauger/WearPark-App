@@ -6,6 +6,7 @@ import FeatureCard from '../components/FeatureCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React from 'react';
+import WebFooter from '../components/WebFooter';
 
 export default function WelcomeScreen() {
     const router = useRouter();
@@ -68,7 +69,7 @@ function WelcomeWebLayout() {
             colors={[color1, color2]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
-            style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}
+            style={{ minHeight: '100vh' as any, display: 'flex', flexDirection: 'column' }}
         >
             {/* HEADER */}
             <View style={{
@@ -80,7 +81,7 @@ function WelcomeWebLayout() {
             }}>
                 <Image
                     source={require('../../assets/images/wearkpark-logo-white.png')}
-                    style={{ width: 200, height: 40 }}
+                    style={{ width: 160, height: 40 }}
                     resizeMode="contain"
                 />
                 <View style={{ flexDirection: 'row', gap: 16 }}>
@@ -208,28 +209,7 @@ function WelcomeWebLayout() {
             </View>
 
             {/* FOOTER */}
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: 20,
-                paddingHorizontal: 60,
-            }}>
-                <Text style={{ color: theme.colors.textPrimary, opacity: 0.8 }}>
-                    © 2026 WearPark. Tous droits réservés.
-                </Text>
-                <View style={{ flexDirection: 'row', gap: 24 }}>
-                    <TouchableOpacity>
-                        <Text style={{ color: theme.colors.textPrimary, opacity: 0.8  }}>Confidentialité</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Text style={{ color: theme.colors.textPrimary, opacity: 0.8  }}>Conditions</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity>
-                        <Text style={{ color: theme.colors.textPrimary, opacity: 0.8  }}>Contact</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
+            <WebFooter />
         </LinearGradient>
     );
 }

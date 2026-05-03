@@ -54,7 +54,7 @@ export const adminService = {
     }
   },
 
-  updateUserRole: async (userId: string, role: 'user' | 'admin'): Promise<void> => {
+  updateUserRole: async (userId: string, role: 'USER' | 'ADMIN'): Promise<void> => {
     try {
       await privateApiClient.patch(`/admin/users/${userId}/role`, { role });
     } catch (error: any) {
@@ -68,7 +68,7 @@ export const adminService = {
 
   updateUser: async (id: string, user: AdminUserDetailsRequest): Promise<void> => {
     try {
-      await privateApiClient.patch(`/admin/users/${id}/details`, user);
+      await privateApiClient.patch(`/admin/users/${id}`, user);
     } catch (error: any) {
       throw new ApiError(
         error.response?.status ?? 0,

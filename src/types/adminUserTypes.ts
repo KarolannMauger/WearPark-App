@@ -3,7 +3,7 @@ export interface UserSummary {
     email: string;
     firstName: string;
     lastName: string;
-    role: 'user' | 'admin';
+    role: 'USER' | 'ADMIN';
     createdAt: string;
     isDeleted: boolean;
 }

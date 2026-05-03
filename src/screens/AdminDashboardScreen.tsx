@@ -13,12 +13,12 @@ import { useRouter } from 'expo-router';
 import ConfirmModal from '../components/ConfirmModal';
 
 const COL = {
-    name:      { flex: 2, minWidth: 160 },
-    email:     { flex: 3, minWidth: 180 },
-    role:      { flex: 1, minWidth: 100 },
-    date:      { flex: 1, minWidth: 100 },
-    isDeleted: { flex: 1, minWidth: 90  },
-    actions:   { flex: 1, minWidth: 100 },
+    name: { flex: 2, minWidth: 160 },
+    email: { flex: 3, minWidth: 180 },
+    role: { flex: 1, minWidth: 100 },
+    date: { flex: 1, minWidth: 100 },
+    isDeleted: { flex: 1, minWidth: 90 },
+    actions: { flex: 1, minWidth: 100 },
 };
 
 
@@ -37,7 +37,7 @@ const MODAL_CLOSED: ModalState = {
     message: '',
     confirmLabel: 'Confirmer',
     destructive: false,
-    onConfirm: () => {},
+    onConfirm: () => { },
 };
 
 export default function AdminDashboard() {
@@ -45,13 +45,13 @@ export default function AdminDashboard() {
     const screenStyles = createScreenStyles(theme);
     const router = useRouter();
 
-    const [users, setUsers]           = useState<UserSummary[]>([]);
-    const [page, setPage]             = useState(0);
+    const [users, setUsers] = useState<UserSummary[]>([]);
+    const [page, setPage] = useState(0);
     const [totalPages, setTotalPages] = useState(0);
-    const [loading, setLoading]       = useState(true);
-    const [error, setError]           = useState<string | null>(null);
-    const [actionId, setActionId]     = useState<string | null>(null);
-    const [modal, setModal]           = useState<ModalState>(MODAL_CLOSED);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [actionId, setActionId] = useState<string | null>(null);
+    const [modal, setModal] = useState<ModalState>(MODAL_CLOSED);
 
     useEffect(() => { loadUsers(); }, []);
 
@@ -73,7 +73,7 @@ export default function AdminDashboard() {
     const closeModal = () => setModal(MODAL_CLOSED);
 
     const handleRoleChange = (u: UserSummary) => {
-        const newRole = u.role === 'admin' ? 'user' : 'admin';
+        const newRole = u.role === 'ADMIN' ? 'USER' : 'ADMIN';
         setModal({
             visible: true,
             title: 'Modifier le rôle',
@@ -118,7 +118,7 @@ export default function AdminDashboard() {
     };
 
     if (loading) return <LoadingView message="Chargement des utilisateurs..." />;
-    if (error)   return <ErrorView message={error} onRetry={loadUsers} />;
+    if (error) return <ErrorView message={error} onRetry={loadUsers} />;
 
     return (
         <View style={[screenStyles.container, { flex: 1 }]}>
@@ -131,12 +131,20 @@ export default function AdminDashboard() {
                 backgroundColor: theme.colors.card,
                 borderBottomWidth: 1,
                 borderBottomColor: theme.colors.border,
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 20,
             }}>
-                <Text style={theme.typography.h2}>Utilisateurs ({users.length})</Text>
+                <Text style={theme.typography.h4}>Utilisateurs</Text>
+
+                <Text style={theme.typography.h4}>
+                    Total : ({users.length}) · Actifs : —
+                </Text>
             </View>
 
             {/* ── Tableau ── */}
-            <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 20 }}>
+            <ScrollView style={{ flex: 1 }}>
 
                 {/* En-tête */}
                 <View style={{
@@ -149,17 +157,17 @@ export default function AdminDashboard() {
                     paddingVertical: 10,
                     paddingHorizontal: 12,
                 }}>
-                    <HeaderCell col={COL.name}      label="Nom" />
-                    <HeaderCell col={COL.email}     label="Email" />
-                    <HeaderCell col={COL.role}      label="Rôle" />
-                    <HeaderCell col={COL.date}      label="Créé le" />
+                    <HeaderCell col={COL.name} label="Nom" />
+                    <HeaderCell col={COL.email} label="Email" />
+                    <HeaderCell col={COL.role} label="Rôle" />
+                    <HeaderCell col={COL.date} label="Créé le" />
                     <HeaderCell col={COL.isDeleted} label="Statut" />
-                    <HeaderCell col={COL.actions}   label="Actions" />
+                    <HeaderCell col={COL.actions} label="Actions" />
                 </View>
 
                 {/* Lignes */}
                 {users.map((u, index) => {
-                    const isLast    = index === users.length - 1;
+                    const isLast = index === users.length - 1;
                     const isLoading = actionId === u.id;
 
                     return (
@@ -179,7 +187,7 @@ export default function AdminDashboard() {
                                 borderRightWidth: 1,
                                 borderBottomWidth: 1,
                                 borderColor: theme.colors.border,
-                                borderBottomLeftRadius:  isLast ? 8 : 0,
+                                borderBottomLeftRadius: isLast ? 8 : 0,
                                 borderBottomRightRadius: isLast ? 8 : 0,
                                 opacity: isLoading ? 0.5 : 1,
                             }}
@@ -212,7 +220,7 @@ export default function AdminDashboard() {
                                         paddingVertical: 3,
                                         borderRadius: 4,
                                         opacity: u.isDeleted ? 0.35 : 1,
-                                        backgroundColor: u.role === 'admin'
+                                        backgroundColor: u.role === 'ADMIN'
                                             ? theme.colors.warning + '25'
                                             : theme.colors.success + '25',
                                     }}
@@ -220,14 +228,15 @@ export default function AdminDashboard() {
                                     <Text style={{
                                         fontSize: 11,
                                         fontWeight: '700',
-                                        color: u.role === 'admin' ? theme.colors.warning : theme.colors.success,
+                                        textTransform: 'lowercase',
+                                        color: u.role === 'ADMIN' ? theme.colors.warning : theme.colors.success,
                                     }}>
                                         {u.role.toUpperCase()}
                                     </Text>
                                     <MaterialIcons
                                         name="swap-horiz"
                                         size={12}
-                                        color={u.role === 'admin' ? theme.colors.warning : theme.colors.success}
+                                        color={u.role === 'ADMIN' ? theme.colors.warning : theme.colors.success}
                                     />
                                 </TouchableOpacity>
                             </View>

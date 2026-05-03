@@ -22,7 +22,6 @@ export default function UserDetailScreen() {
     const [error, setError] = useState<string | null>(null);
 
     const [isEditingUser, setIsEditingUser] = useState(false);
-    const [isEditingDevices, setIsEditingDevices] = useState(false);
 
     const [form, setForm] = useState<AdminUserDetailsRequest>({
         firstName: '',
@@ -89,7 +88,7 @@ export default function UserDetailScreen() {
 
             {/* HEADER */}
             <View style={{ marginBottom: 20 }}>
-                <TouchableOpacity onPress={() => router.back()}>
+                <TouchableOpacity onPress={() => router.push("/admin/dashboard")}>
                     <Text style={{ color: theme.colors.primary }}>← Retour</Text>
                 </TouchableOpacity>
 
@@ -121,9 +120,7 @@ export default function UserDetailScreen() {
                 <View style={{ flex: 1 }}>
                     <DevicesCard
                         user={user}
-                        isEditing={isEditingDevices}
                         theme={theme}
-                        onToggleEdit={() => setIsEditingDevices(prev => !prev)}
                         onDeviceChanged={loadUser}
                     />
                 </View>
