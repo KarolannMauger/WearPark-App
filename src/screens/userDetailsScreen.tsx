@@ -11,7 +11,7 @@ import { AdminUserDetailsResponse, AdminUserDetailsRequest } from '../types/admi
 import AdminUserInfoCard from '../components/AdminUserInfoCard';
 import DevicesCard from '../components/DevicesCard';
 
-export default function UserDetailScreen() {
+export default function UserDetailsScreen() {
     const { id } = useLocalSearchParams<{ id: string }>();
     const router = useRouter();
     const theme = useTheme();

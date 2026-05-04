@@ -125,7 +125,7 @@ export default function AdminDashboard() {
 
             <ConfirmModal {...modal} onCancel={closeModal} />
 
-            {/* ── Header ── */}
+            {/* Header */}
             <View style={{
                 padding: 20,
                 backgroundColor: theme.colors.card,
@@ -143,10 +143,9 @@ export default function AdminDashboard() {
                 </Text>
             </View>
 
-            {/* ── Tableau ── */}
+            {/* Tableau */}
             <ScrollView style={{ flex: 1 }}>
 
-                {/* En-tête */}
                 <View style={{
                     flexDirection: 'row',
                     backgroundColor: theme.colors.card,
@@ -165,7 +164,6 @@ export default function AdminDashboard() {
                     <HeaderCell col={COL.actions} label="Actions" />
                 </View>
 
-                {/* Lignes */}
                 {users.map((u, index) => {
                     const isLast = index === users.length - 1;
                     const isLoading = actionId === u.id;
@@ -192,21 +190,18 @@ export default function AdminDashboard() {
                                 opacity: isLoading ? 0.5 : 1,
                             }}
                         >
-                            {/* Nom */}
                             <View style={{ flex: COL.name.flex, minWidth: COL.name.minWidth }}>
                                 <Text style={{ fontWeight: '600', fontSize: 14 }}>
                                     {u.firstName} {u.lastName}
                                 </Text>
                             </View>
 
-                            {/* Email */}
                             <View style={{ flex: COL.email.flex, minWidth: COL.email.minWidth }}>
                                 <Text style={{ fontSize: 13, color: theme.colors.textSecondary }}>
                                     {u.email}
                                 </Text>
                             </View>
 
-                            {/* Rôle — cliquable */}
                             <View style={{ flex: COL.role.flex, minWidth: COL.role.minWidth }}>
                                 <TouchableOpacity
                                     onPress={() => handleRoleChange(u)}
@@ -241,14 +236,12 @@ export default function AdminDashboard() {
                                 </TouchableOpacity>
                             </View>
 
-                            {/* Date */}
                             <View style={{ flex: COL.date.flex, minWidth: COL.date.minWidth }}>
                                 <Text style={{ fontSize: 12, color: theme.colors.textSecondary }}>
                                     {new Date(u.createdAt).toLocaleDateString()}
                                 </Text>
                             </View>
 
-                            {/* isDeleted */}
                             <View style={{ flex: COL.isDeleted.flex, minWidth: COL.isDeleted.minWidth }}>
                                 <View style={{
                                     alignSelf: 'flex-start',
@@ -269,7 +262,6 @@ export default function AdminDashboard() {
                                 </View>
                             </View>
 
-                            {/* Actions */}
                             <View style={{
                                 flex: COL.actions.flex,
                                 minWidth: COL.actions.minWidth,
@@ -309,7 +301,6 @@ export default function AdminDashboard() {
 
             </ScrollView>
 
-            {/* ── Pagination ── */}
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',

@@ -15,7 +15,7 @@ export default function WebAuthLayout({ children }: Props) {
         <View style={{ flex: 1, minHeight: '100vh' as any, backgroundColor: theme.colors.background }}>
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
 
-                {/* ── Header ── */}
+                {/* Header */}
                 <View style={{
                     backgroundColor: theme.colors.primary,
                     paddingVertical: 20,
@@ -31,7 +31,7 @@ export default function WebAuthLayout({ children }: Props) {
                     </TouchableOpacity>
                 </View>
 
-                {/* ── Contenu ── */}
+                {/* Contenu */}
                 <View style={{
                     flex: 1,
                     justifyContent: 'center',
@@ -52,7 +52,7 @@ export default function WebAuthLayout({ children }: Props) {
                     </View>
                 </View>
 
-                {/* ── Footer ── */}
+                {/* Footer */}
                 <WebFooter />
 
             </ScrollView>

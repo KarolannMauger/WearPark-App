@@ -37,7 +37,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="dataHistory"
+        name="data-history"
         options={{
           title: 'Historique',
           tabBarIcon: ({ size, focused }) => (
@@ -54,7 +54,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="motionReports"
+        name="motion-reports"
         options={{
           title: 'Rapports',
           tabBarIcon: ({ size, focused }) => (

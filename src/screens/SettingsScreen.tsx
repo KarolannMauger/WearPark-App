@@ -15,8 +15,8 @@ export default function SettingsScreen() {
 
   const handleLogout = () => {
     confirm(
-      "Logout",
-      "Are you sure you want to logout?",
+      "Se déconnecter",
+      "Êtes-vous sûr de vouloir vous déconnecter?",
       async () => {
         await logout();
       }
@@ -25,7 +25,7 @@ export default function SettingsScreen() {
 
   return (
     <View style={screenStyles.container}>
-      <BackHeader title="Settings" />
+      <BackHeader title="Paramètres" />
       <View>
         <View style={settingsStyles.settingRow}>
           <View style={settingsStyles.rowLeft}>
@@ -34,7 +34,7 @@ export default function SettingsScreen() {
               size={30}
               color={theme.colors.textSecondary}
             />
-            <Text style={settingsStyles.rowText}>Theme</Text>
+            <Text style={settingsStyles.rowText}>Thème</Text>
           </View>
           <Switch
             value={theme.mode === "dark"}
@@ -61,7 +61,7 @@ export default function SettingsScreen() {
               size={30}
               color={theme.colors.textSecondary}
             />
-            <Text style={settingsStyles.rowText}>Logout</Text>
+            <Text style={settingsStyles.rowText}>Se déconnecter</Text>
           </View>
           <Ionicons
             name="chevron-forward"
