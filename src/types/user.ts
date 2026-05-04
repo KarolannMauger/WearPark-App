@@ -1,3 +1,5 @@
+import { Device } from "./device";
+
 export interface User {
   firstName: string;
   lastName: string;
@@ -11,4 +13,5 @@ export interface User {
     monthlyReportEmail: boolean;
     reportRecipients: string[];
   };
+  device: Device | null;
 };

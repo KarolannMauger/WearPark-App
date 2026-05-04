@@ -39,7 +39,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
     const [adding, setAdding]           = useState(false);
     const [addError, setAddError]       = useState<string | null>(null);
 
-    // édition par device : { [deviceId]: { key: string, saving: bool, error: string|null } }
     const [editingRows, setEditingRows] = useState<Record<string, {
         key: string;
         saving: boolean;
@@ -51,7 +50,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
     const hasActiveDevice = user.devices?.some(d => d.isActive) ?? false;
     const canAdd = !user.isDeleted && !hasActiveDevice;
 
-    /* ── helpers édition par row ── */
     const startEdit = (deviceId: string, currentKey: string) => {
         setEditingRows(prev => ({
             ...prev,
@@ -92,7 +90,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
         }
     };
 
-    /* ── désactiver ── */
     const handleDisableDevice = (deviceId: string) => {
         setModal({
             visible: true,
@@ -119,7 +116,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
         });
     };
 
-    /* ── ajouter ── */
     const handleAddDevice = async () => {
         const trimmed = newDeviceKey.trim();
         if (!trimmed) return;
@@ -143,7 +139,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
 
             <ConfirmModal {...modal} onCancel={closeModal} />
 
-            {/* ── Header ── */}
             <View style={[styles.deviceCardHeader, { marginBottom: 12 }]}>
                 <Text style={theme.typography.h3}>
                     Devices ({user.devices?.length ?? 0})
@@ -161,7 +156,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                 )}
             </View>
 
-            {/* Avertissement device actif existant */}
             {!user.isDeleted && hasActiveDevice && (
                 <View style={{
                     marginBottom: 12,
@@ -177,7 +171,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                 </View>
             )}
 
-            {/* ── Formulaire ajout ── */}
             {showAddForm && (
                 <View style={{
                     marginBottom: 16,
@@ -234,7 +227,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                 </View>
             )}
 
-            {/* ── Liste devices ── */}
             {user.devices?.map((device) => {
                 const editing = editingRows[device.id];
                 const isEditingRow = !!editing;
@@ -242,10 +234,8 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                 return (
                     <View key={device.id} style={[styles.deviceRow, { flexDirection: 'column', alignItems: 'stretch', gap: 8 }]}>
 
-                        {/* Ligne principale */}
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
 
-                            {/* Clé + date */}
                             <View style={{ flex: 1 }}>
                                 {isEditingRow ? (
                                     <TextInput
@@ -274,7 +264,6 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                                 </Text>
                             </View>
 
-                            {/* Badge statut */}
                             <View style={[
                                 styles.deviceBadge,
                                 { marginLeft: 10, backgroundColor: device.isActive ? theme.colors.success + '20' : theme.colors.error + '20' }
@@ -289,14 +278,12 @@ export default function DevicesCard({ user, theme, onDeviceChanged }: Props) {
                             </View>
                         </View>
 
-                        {/* Erreur édition */}
                         {isEditingRow && editing.error && (
                             <Text style={{ fontSize: 12, color: theme.colors.error }}>
                                 {editing.error}
                             </Text>
                         )}
 
-                        {/* Actions row */}
                         {!user.isDeleted && (
                             <View style={{ flexDirection: 'row', gap: 8 }}>
                                 {isEditingRow ? (
