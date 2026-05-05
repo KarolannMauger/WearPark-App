@@ -16,7 +16,6 @@ interface DeviceUserResponse {
 }
 
 export default function DeviceScreen() {
-    const router = useRouter();
     const theme = useTheme();
     const screenStyles = createScreenStyles(theme);
 

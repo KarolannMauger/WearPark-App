@@ -10,7 +10,7 @@ export default function AdminLayout() {
     const theme = useTheme();
     const { logout } = useUser();
     const router = useRouter();
-    
+
     const handleLogout = async () => {
         await logout();
         router.replace('/');
@@ -23,10 +23,10 @@ export default function AdminLayout() {
                 <Text style={{ color: theme.colors.textPrimary, textAlign: 'center' }}>
                     La console d'administration est accessible sur navigateur web uniquement.
                 </Text>
-                    <Button
-                        title="Se déconnecter"
-                        onPress={handleLogout}
-                    />
+                <Button
+                    title="Se déconnecter"
+                    onPress={handleLogout}
+                />
             </View>
         );
     }
