@@ -1,84 +1,46 @@
+import { ApiError } from '../errors/ApiError';
 import { privateApiClient } from './api';
 import { base64ToFloatArray } from '@/src/utils/base64';
 
-export interface MotionDataRaw {
-  id: string;
-  start: string;
-  end: string;
-  data: {
-    ax: string;
-    ay: string;
-    az: string;
-    gx: string;
-    gy: string;
-    gz: string;
-  };
+export interface MotionDayData {
+  date: Date;
+  avgIntensity: number;
+  avgDuration: number;
+  episodeCount: number;
+  lastEpisode: Date | null;
+  graphData: number[];
+  graphStart: Date;
+  graphEnd: Date;
+  graphMax: number;
+  graphMin: number;
 }
-
-export interface MotionDataDecoded {
-  id: string;
-  start: Date;
-  end: Date;
-  data: {
-    ax: number[];
-    ay: number[];
-    az: number[];
-    gx: number[];
-    gy: number[];
-    gz: number[];
-  };
-}
-
-export type MotionDataListResponse = MotionDataRaw[];
 
 export const motionService = {
-  getLatest: async (): Promise<MotionDataDecoded> => {
-    const response = await privateApiClient.get<MotionDataRaw>('/motion/data/latest');
-    
-    return decodeMotionData(response.data);
+  getDayView: async (date: string): Promise<MotionDayData> => {
+    try {
+      const response = await privateApiClient.get(`/motion/view/day`, { params: { date } });
+
+      const decodedGraphData = base64ToFloatArray(response.data.graph.data);
+
+      return {
+        date: new Date(response.data.date),
+        avgIntensity: response.data.avgIntensity,
+        avgDuration: response.data.avgDurationMs / 1000,
+        episodeCount: response.data.nbEpisode,
+        lastEpisode: response.data.lastEpisode ? new Date(response.data.lastEpisode) : null,
+        graphData: decodedGraphData,
+        graphStart: new Date(response.data.graph.start),
+        graphEnd: new Date(response.data.graph.end),
+        graphMax: isFinite(response.data.graph.max) ? response.data.graph.max : 0,
+        graphMin: isFinite(response.data.graph.min) ? response.data.graph.min : 0,
+      };
+    } catch (error) {
+      throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données journalières.');
+    }
   },
 
-  getAll: async (params?: {
-    startDate?: string;
-    endDate?: string;
-  }): Promise<MotionDataDecoded[]> => {
-    
-    try {
-      const response = await privateApiClient.get<MotionDataListResponse>('/motion/data', {
-        params: {
-          start: params?.startDate,
-          end: params?.endDate,
-        },
-      });
-      
-      if (!Array.isArray(response.data)) {
-        return [];
-      }
-      
-      return response.data.map(decodeMotionData);
-    } catch (error: any) {
-      console.error('❌ Motion API Error:', {
-        message: error.message,
-        status: error.response?.status,
-        data: error.response?.data,
-      });
-      throw error;
-    }
-  }
+  getTodayView: async (): Promise<MotionDayData> => {
+    const today = new Date().toISOString();
+    return motionService.getDayView(today);
+  },
 };
-
-function decodeMotionData(raw: MotionDataRaw): MotionDataDecoded {
-  return {
-    id: raw.id,
-    start: new Date(raw.start),
-    end: new Date(raw.end),
-    data: {
-      ax: base64ToFloatArray(raw.data.ax),
-      ay: base64ToFloatArray(raw.data.ay),
-      az: base64ToFloatArray(raw.data.az),
-      gx: base64ToFloatArray(raw.data.gx),
-      gy: base64ToFloatArray(raw.data.gy),
-      gz: base64ToFloatArray(raw.data.gz),
-    },
-  };
-}

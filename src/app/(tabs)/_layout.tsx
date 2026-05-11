@@ -25,7 +25,24 @@ export default function TabsLayout() {
           title: 'Accueil',
           tabBarIcon: ({ size, focused }) => (
             <MaterialIcons
-              name="home"
+              name="home-filled"
+              size={size}
+              color={
+                focused
+                  ? theme.colors.icon
+                  : theme.colors.iconTab
+              }
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dataHistory"
+        options={{
+          title: 'Historique',
+          tabBarIcon: ({ size, focused }) => (
+            <MaterialIcons
+              name="area-chart"
               size={size}
               color={
                 focused
@@ -39,10 +56,10 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="motionReports"
         options={{
-          title: 'Historique',
+          title: 'Rapports',
           tabBarIcon: ({ size, focused }) => (
             <MaterialIcons
-              name="history"
+              name="file-copy"
               size={size}
               color={
                 focused

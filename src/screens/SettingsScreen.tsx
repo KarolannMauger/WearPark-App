@@ -4,7 +4,7 @@ import { useUser } from "../context/UserContext";
 import { View, Text, TouchableOpacity, Switch, Alert } from "react-native";
 import BackHeader from "../components/BackHeader";
 import { Ionicons } from "@expo/vector-icons";
-import { createSettingsStyles } from "../styles/screens/settingsStyle";
+import { createSettingsStyles } from "../styles/screens/settingsStyles";
 
 export default function SettingsScreen() {
   const theme = useTheme();
@@ -46,14 +46,14 @@ export default function SettingsScreen() {
             <Text style={settingsStyles.rowText}>Theme</Text>
           </View>
           <Switch
-            value={theme.theme === "dark"}
+            value={theme.mode === "dark"}
             onValueChange={theme.toggleTheme}
             thumbColor={
-              theme.theme === "dark" ? theme.colors.accent : theme.colors.white
+              theme.mode === "dark" ? theme.colors.secondary : theme.colors.white
             }
             trackColor={{
-              false: theme.colors.tag,
-              true: theme.colors.accent + 80,
+              false: theme.colors.secondary,
+              true: theme.colors.secondary + 80,
             }}
           />
         </View>
