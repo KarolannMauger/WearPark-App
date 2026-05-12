@@ -44,9 +44,9 @@ export default function MotionChart({
                 yAxisColor={theme.colors.textSecondary}
                 yAxisTextStyle={{ color: theme.colors.textSecondary }}
                 xAxisLabelTextStyle={{ color: theme.colors.textSecondary }}
-                yAxisOffset={8}
-                stepValue={1}
-                noOfSections={8}
+                yAxisOffset={9}
+                stepValue={0.5}
+                noOfSections={6}
             />
 
             {showLegend && (

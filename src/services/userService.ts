@@ -38,7 +38,7 @@ export const userService = {
       const response = await privateApiClient.get<User>("/user");
       return response.data;
     } catch (error) {
-      handleUserServiceError(error, "Impossible de récupérer le profil.");
+      throw handleUserServiceError(error, "Impossible de récupérer le profil.");
     }
   },
 
@@ -56,7 +56,7 @@ export const userService = {
 
       await privateApiClient.post("/user", safePayload);
     } catch (error) {
-      handleUserServiceError(error, "Erreur lors de la mise à jour du profil.");
+      throw handleUserServiceError(error, "Erreur lors de la mise à jour du profil.");
     }
   },
 };

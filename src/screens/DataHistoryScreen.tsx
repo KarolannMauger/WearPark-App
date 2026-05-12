@@ -1,62 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
-import { createScreenStyles } from "../styles/screens/screenStyles";
+import { createScreenStyles } from '../styles/screens/screenStyles';
 import { Calendar } from 'react-native-calendars';
 import { createDataHistoryStyles } from '../styles/screens/dataHistoryStyles';
-import { motionService, MotionMonthData, MotionDayData } from '@/src/services/motionService';
+import { motionService } from '@/src/services/motionService';
+import { MotionMonthData, MotionDayData } from '@/src/types/motion';
 import LoadingView from '../components/LoadingView';
 import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
 import { ApiError } from '@/src/errors/ApiError';
-
-// ========== SIMULATION DONNÉES API ==========
-const generateMockMonthData = (year: number, month: number): MotionMonthData => {
-    const daysInMonth = new Date(year, month, 0).getDate();
-    const numDaysWithEpisodes = Math.floor(Math.random() * 6) + 10;
-
-    const episodes: Array<{ date: string; count: number }> = [];
-    for (let i = 0; i < numDaysWithEpisodes; i++) {
-        const day = Math.floor(Math.random() * daysInMonth) + 1;
-        const date = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const count = Math.floor(Math.random() * 8) + 1;
-
-        episodes.push({ date, count });
-    }
-
-    return { year, month, episodes };
-};
-
-const generateMockDayData = (date: string): MotionDayData => {
-    const graphData: number[] = [];
-    for (let i = 0; i < 150; i++) {
-        const t = i * 0.01;
-        const tremblePhase = Math.sin(t * 0.5);
-        const isActive = tremblePhase > -0.3;
-
-        if (isActive) {
-            const amplitude = (0.5 + Math.random() * 0.5);
-            const noise = (Math.random() - 0.5) * 0.3;
-            graphData.push(amplitude * Math.sin(2 * Math.PI * 4.5 * t) + noise + 9.8);
-        } else {
-            graphData.push(9.8 + (Math.random() - 0.5) * 0.1);
-        }
-    }
-
-    return {
-        date: new Date(date),
-        avgIntensity: 1.2 + Math.random() * 0.8,
-        avgDuration: 2 + Math.random() * 3,
-        episodeCount: Math.floor(Math.random() * 5) + 3,
-        lastEpisode: new Date(`${date}T${Math.floor(Math.random() * 24).toString().padStart(2, '0')}:00:00Z`),
-        graphData: graphData,
-        graphStart: new Date(date),
-        graphEnd: new Date(date),
-        graphMax: Math.max(...graphData),
-        graphMin: Math.min(...graphData),
-    };
-};
-// ========================================
 
 export default function DataHistoryScreen() {
     const theme = useTheme();
@@ -71,25 +24,18 @@ export default function DataHistoryScreen() {
     const [error, setError] = useState<string | null>(null);
     const [errorDay, setErrorDay] = useState<string | null>(null);
 
-
     useEffect(() => {
-        const now = new Date();
-        loadMonthEpisodes(now.getFullYear(), now.getMonth() + 1);
+        loadMonth(new Date().toISOString());
     }, []);
 
-    const loadMonthEpisodes = async (year: number, month: number) => {
+    const loadMonth = async (date: string) => {
         setLoading(true);
         setError(null);
-
         try {
-            const data = await motionService.getMonthView(year, month);
+            const data = await motionService.getMonthView(date);
             setMonthData(data);
         } catch (err) {
-            if (err instanceof ApiError) {
-                setError(err.message);
-            } else {
-                setError("Erreur inattendue.");
-            }
+            setError(err instanceof ApiError ? err.message : 'Erreur inattendue.');
         } finally {
             setLoading(false);
         }
@@ -101,50 +47,43 @@ export default function DataHistoryScreen() {
         setErrorDay(null);
         setSelectedDayData(null);
 
-        await new Promise(resolve => setTimeout(resolve, 500));
-
         try {
-            // ========== MODE SIMULATION ==========
-            const episode = monthData?.episodes.find(e => e.date === day.dateString);
-            if (episode) {
-                const mockDayData = generateMockDayData(day.dateString);
-                setSelectedDayData(mockDayData);
-            } else {
-                setSelectedDayData(null);
-            }
-
-            // ========== MODE RÉEL (à décommenter plus tard) ==========
-            // const dayData = await motionService.getDayView(day.dateString);
-            // setSelectedDayData(dayData);
+            const dayData = await motionService.getDayView(new Date(day.dateString).toISOString());
+            setSelectedDayData(dayData);
         } catch (err) {
             if (err instanceof ApiError) {
-                if (err.status === 404) {
-                    setSelectedDayData(null);
-                } else {
-                    setErrorDay(err.message);
-                }
+                if (err.status === 404) setSelectedDayData(null);
+                else setErrorDay(err.message);
             } else {
-                setErrorDay("Erreur inattendue lors du chargement des données du jour.");
+                setErrorDay('Erreur inattendue lors du chargement des données du jour.');
             }
         } finally {
             setLoadingDay(false);
         }
     };
 
+    const daysByDate = monthData?.days.reduce((acc, day) => {
+        const dateKey = new Date(day.start).toISOString().split('T')[0];
+        acc[dateKey] = day;
+        return acc;
+    }, {} as Record<string, MotionMonthData['days'][number]>) ?? {};
 
-    const markedDates = monthData?.episodes.reduce((acc, episode) => {
-        let color = theme.colors.success;
-        if (episode.count > 5) color = theme.colors.error;
-        else if (episode.count > 2) color = theme.colors.warning;
-
-        acc[episode.date] = {
+    const markedDates = Object.keys(daysByDate).reduce((acc, dateKey) => {
+        acc[dateKey] = {
             marked: true,
-            dotColor: color,
-            selected: selectedDate === episode.date,
+            dotColor: theme.colors.primary,
+            selected: selectedDate === dateKey,
             selectedColor: theme.colors.primary,
         };
         return acc;
-    }, {} as any) || {};
+    }, {} as any);
+
+    if (selectedDate && !markedDates[selectedDate]) {
+        markedDates[selectedDate] = {
+            selected: true,
+            selectedColor: theme.colors.primary,
+        };
+    }
 
     if (loading && !monthData) {
         return (
@@ -161,10 +100,7 @@ export default function DataHistoryScreen() {
                 <Text style={screenStyles.pageTitle}>Calendrier des épisodes</Text>
                 <ErrorView
                     message={error}
-                    onRetry={() => {
-                        const now = new Date();
-                        loadMonthEpisodes(now.getFullYear(), now.getMonth() + 1);
-                    }}
+                    onRetry={() => loadMonth(new Date().toISOString())}
                 />
             </View>
         );
@@ -183,7 +119,55 @@ export default function DataHistoryScreen() {
                 markedDates={markedDates}
                 onDayPress={handleDayPress}
                 onMonthChange={(month) => {
-                    loadMonthEpisodes(month.year, month.month);
+                    const date = new Date(month.year, month.month - 1, 1).toISOString();
+                    loadMonth(date);
+                }}
+                dayComponent={({ date, state }: any) => {
+                    const dayKey = date?.dateString ?? '';
+                    const day = daysByDate[dayKey];
+                    const amplitude = day?.meanAmplitude;
+                    const isSelected = selectedDate === dayKey;
+                    const isToday = state === 'today';
+
+                    return (
+                        <View
+                            onTouchEnd={() => handleDayPress({ dateString: dayKey })}
+                            style={{ alignItems: 'center', paddingVertical: 4 }}
+                        >
+                            <View style={{
+                                width: 30,
+                                height: 30,
+                                borderRadius: 15,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: isSelected ? theme.colors.primary : 'transparent',
+                            }}>
+                                <Text style={{
+                                    fontSize: 14,
+                                    fontWeight: isToday ? '700' : '400',
+                                    color: isSelected
+                                        ? '#fff'
+                                        : state === 'disabled'
+                                            ? theme.colors.textSecondary
+                                            : theme.colors.textPrimary,
+                                }}>
+                                    {date?.day}
+                                </Text>
+                            </View>
+
+                            <Text style={{
+                                fontSize: 9,
+                                color: day
+                                    ? theme.colors.primary
+                                    : theme.colors.textSecondary,
+                                marginTop: 1,
+                            }}>
+                                {day
+                                    ? amplitude != null ? amplitude.toFixed(1) : '-'
+                                    : ' '}
+                            </Text>
+                        </View>
+                    );
                 }}
                 theme={{
                     backgroundColor: theme.colors.background,
@@ -193,30 +177,13 @@ export default function DataHistoryScreen() {
                     selectedDayTextColor: '#ffffff',
                     todayTextColor: theme.colors.primary,
                     dayTextColor: theme.colors.textPrimary,
-                    textDisabledColor: theme.colors.textDisabled,
+                    textDisabledColor: theme.colors.textSecondary,
                     monthTextColor: theme.colors.textPrimary,
                     arrowColor: theme.colors.primary,
                 }}
             />
 
-            <View style={dataHistoryStyles.legend}>
-                <View style={dataHistoryStyles.legendItem}>
-                    <View style={[dataHistoryStyles.dot, { backgroundColor: theme.colors.success }]} />
-                    <Text style={dataHistoryStyles.legendText}>1-2 épisodes</Text>
-                </View>
-                <View style={dataHistoryStyles.legendItem}>
-                    <View style={[dataHistoryStyles.dot, { backgroundColor: theme.colors.warning }]} />
-                    <Text style={dataHistoryStyles.legendText}>3-5 épisodes</Text>
-                </View>
-                <View style={dataHistoryStyles.legendItem}>
-                    <View style={[dataHistoryStyles.dot, { backgroundColor: theme.colors.error }]} />
-                    <Text style={dataHistoryStyles.legendText}>6+ épisodes</Text>
-                </View>
-            </View>
-
-            {loadingDay && (
-                <LoadingView message="Chargement des données..." />
-            )}
+            {loadingDay && <LoadingView message="Chargement des données..." />}
 
             {errorDay && (
                 <View style={{ padding: 20 }}>
@@ -227,9 +194,9 @@ export default function DataHistoryScreen() {
                 </View>
             )}
 
-             {!loadingDay && !errorDay && selectedDate && !selectedDayData && (
+            {!loadingDay && !errorDay && selectedDate && !selectedDayData && (
                 <Text style={dataHistoryStyles.emptyText}>
-                    Aucun épisode ce jour-là
+                    Aucune donnée pour ce jour
                 </Text>
             )}
 
@@ -239,15 +206,10 @@ export default function DataHistoryScreen() {
                         Données du {selectedDate}
                     </Text>
 
-                    <Text style={dataHistoryStyles.subtitle}>
-                        {selectedDayData.episodeCount} épisode(s) - {selectedDayData.graphData.length} samples
-                    </Text>
-
                     <View style={dataHistoryStyles.chartSection}>
                         <Text style={dataHistoryStyles.chartLabel}>Intensité des mouvements</Text>
-
                         <MotionChart
-                            data={selectedDayData.graphData.slice(0, 100)}
+                            data={selectedDayData.graph.data.slice(0, 100)}
                             label="Accéléromètre (norme)"
                         />
                     </View>
@@ -255,16 +217,30 @@ export default function DataHistoryScreen() {
                     <View style={dataHistoryStyles.statsContainer}>
                         <Text style={dataHistoryStyles.statsTitle}>Statistiques</Text>
                         <Text style={dataHistoryStyles.statsText}>
-                            Intensité moyenne: {selectedDayData.avgIntensity.toFixed(2)} m/s²
+                            Intensité moyenne : {selectedDayData.meanAmplitude != null
+                                ? `${Number(selectedDayData.meanAmplitude).toFixed(2)} m/s²`
+                                : '--'}
                         </Text>
                         <Text style={dataHistoryStyles.statsText}>
-                            Durée moyenne: {Math.floor(selectedDayData.avgDuration / 60)}m{Math.floor(selectedDayData.avgDuration % 60)}s
+                            Pic : {selectedDayData.peakAmplitude != null
+                                ? `${Number(selectedDayData.peakAmplitude).toFixed(2)} m/s²`
+                                : '--'}
                         </Text>
                         <Text style={dataHistoryStyles.statsText}>
-                            Max: {selectedDayData.graphMax.toFixed(2)} m/s²
+                            Variance : {selectedDayData.variance != null
+                                ? `${Number(selectedDayData.variance).toFixed(3)}`
+                                : '--'}
                         </Text>
                         <Text style={dataHistoryStyles.statsText}>
-                            Min: {selectedDayData.graphMin.toFixed(2)} m/s²
+                            Couverture : {selectedDayData.coverage != null
+                                ? `${Number(selectedDayData.coverage * 100).toFixed(0)}%`
+                                : '--'}
+                        </Text>
+                        <Text style={dataHistoryStyles.statsText}>
+                            Max : {Number(selectedDayData.graph.max).toFixed(2)} m/s²
+                        </Text>
+                        <Text style={dataHistoryStyles.statsText}>
+                            Min : {Number(selectedDayData.graph.min).toFixed(2)} m/s²
                         </Text>
                     </View>
                 </View>

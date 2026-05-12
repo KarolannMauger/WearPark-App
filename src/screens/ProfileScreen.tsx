@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
@@ -48,35 +49,36 @@ export default function ProfileScreen() {
 
           <View>
             <Text style={screenStyles.sectionTitleSmall}>Appareil connecté</Text>
-            {user?.device ? (
-              <View style={profileStyles.deviceInfo}>
-                <View style={profileStyles.iconView}>
-                  <MaterialIcons name="watch" size={20} color={theme.colors.textPrimary} />
-                </View>
-                <View>
-                  <Text style={profileStyles.deviceText}>
-                    {user.device.deviceKey}
-                  </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/devices')}
+              style={profileStyles.deviceInfo}
+            >
+              <View style={profileStyles.iconView}>
+                <MaterialIcons
+                  name={user?.device ? 'watch' : 'watch-off'}
+                  size={20}
+                  color={theme.colors.textPrimary}
+                />
+              </View>
+
+              <View style={{ flex: 1 }}>
+                <Text style={profileStyles.deviceText}>
+                  {user?.device ? user.device.deviceKey : 'Aucun appareil connecté'}
+                </Text>
+                {user?.device && (
                   <Text style={profileStyles.deviceSubText}>
-                    Dernière mesure à : {new Date(user.device.lastDeviceDataDate).toLocaleDateString()}
+                    Appuyer pour gérer
                   </Text>
-                </View>
-
+                )}
               </View>
-            ) : (
-              <View style={profileStyles.deviceInfo}>
-                <View style={profileStyles.iconView}>
-                  <MaterialIcons name="watch-off" size={20} color={theme.colors.textPrimary} />
-                </View>
-                <Text style={profileStyles.deviceText}>Aucun appareil connecté</Text>
-              </View>
-            )}
 
+              <MaterialIcons name="chevron-right" size={20} color={theme.colors.textSecondary} />
+            </TouchableOpacity>
           </View>
         </View>
 
         <TouchableOpacity
-          onPress={() => router.push("/editProfile")}
+          onPress={() => router.push("/edit-profile")}
           style={profileStyles.editButton}
         >
           <Text style={profileStyles.buttonText}>Modifier le profil</Text>

@@ -1,17 +1,17 @@
 import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Platform, } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { createUserFormStyles } from "../styles/components/userFormStyles";
 import Button from "./Button";
-import { User } from "@/src/types/user";
+import { PatchUserRequest, User } from "@/src/types/user";
 import { GENDERS, DISEASES } from "../constants/user.constants";
 
 interface UserProfileFormProps {
     initialData?: User;
-    onSubmit: (data: User) => Promise<void>;
+    onSubmit: (data: PatchUserRequest) => Promise<void>;
     submitButtonText?: string;
     isLoading?: boolean;
     emailEditable?: boolean;
@@ -86,7 +86,7 @@ export default function UserProfileForm({
             .map((e) => e.trim())
             .filter((e) => e.length > 0);
 
-        const data: User = {
+        const data: PatchUserRequest = {
             firstName: firstName.trim(),
             lastName: lastName.trim(),
             email: email.toLowerCase().trim(),

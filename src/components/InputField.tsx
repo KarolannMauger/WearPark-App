@@ -1,3 +1,4 @@
+import React from 'react';
 import { TextInput, View, Text } from 'react-native';
 
 export default function InputField({ label, value, onChange }: any) {

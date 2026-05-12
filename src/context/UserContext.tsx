@@ -73,9 +73,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     const segment = segments[0];
 
-    const isAuthGroup = segment === "(auth)";
     const isAdminGroup = segment === "(admin)";
-    const isTabsGroup = segment === "(tabs)";
     const isWelcome = !segment || segment === "index";
     const isCompleteProfile = segments.includes("complete-profile");
 
@@ -170,13 +168,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   if (isLoading) {
     return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      > <ActivityIndicator size="large" color="#000" /> </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
     );
   }
 

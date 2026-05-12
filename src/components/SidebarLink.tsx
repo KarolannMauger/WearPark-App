@@ -1,3 +1,4 @@
+import React from 'react';
 import { Text, Pressable, PressableStateCallbackType } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { useTheme } from '@/src/context/ThemeContext';

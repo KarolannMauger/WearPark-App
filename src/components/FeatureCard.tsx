@@ -1,3 +1,4 @@
+import React from 'react';
 import { MaterialIcons } from '@expo/vector-icons';
 import { type ComponentProps } from 'react';
 import { useTheme } from '../context/ThemeContext';
