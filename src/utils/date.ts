@@ -26,3 +26,6 @@ export const formatDateForApp = (date?: Date | string): string => {
 
   return `${day}/${month}/${year}`;
 };
+
+export const formatDate = (date?: string) =>
+    date ? new Date(date).toLocaleDateString() : 'N/A';

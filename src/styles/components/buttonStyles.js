@@ -6,7 +6,7 @@ export const createButtonStyles = (theme) => StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  
+
   // Sizes
   small: {
     paddingVertical: 6,
@@ -23,7 +23,7 @@ export const createButtonStyles = (theme) => StyleSheet.create({
     paddingHorizontal: 32,
     minHeight: 56,
   },
-  
+
   // Variants
   primary: {
     backgroundColor: theme.colors.primary,
@@ -36,7 +36,7 @@ export const createButtonStyles = (theme) => StyleSheet.create({
     borderWidth: 2,
     borderColor: theme.colors.primary,
   },
-  
+
   // Text styles
   text: {
     ...theme.typography.button,
@@ -49,5 +49,12 @@ export const createButtonStyles = (theme) => StyleSheet.create({
   },
   text_outline: {
     color: theme.colors.black,
+  },
+
+  disabled: {
+    opacity: 0.4,
+  },
+  textDisabled: {
+    color: theme.colors.white,
   },
 });

@@ -46,7 +46,7 @@ export const userService = {
     try {
       const safePayload: Partial<User> = { ...data };
 
-      safePayload.preferences = safePayload.preferences || { monthlyReportEmail: false, reportRecipients: [] };
+      safePayload.userPreferences = safePayload.userPreferences || { monthlyReportEmail: false, reportRecipients: [] };
 
       safePayload.dateOfBirth = safePayload.dateOfBirth ? formatDateForAPI(safePayload.dateOfBirth) || undefined : undefined;
 

@@ -1,14 +1,15 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { createHomeStyles } from '../styles/screens/homeStyles';
 import { motionService, MotionDayData } from '@/src/services/motionService';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import LoadingView from '../components/LoadingView';
 import ErrorView from '../components/ErrorView';
 import MotionChart from '../components/MotionChart';
 import { ApiError } from '@/src/errors/ApiError';
 import Button from '../components/Button';
+import { motionWebSocketService } from '../services/motionWebSocketService';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -19,20 +20,17 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadTodayData();
-  }, []);
+  const MAX_GRAPH_POINTS = 500;
 
-  const loadTodayData = async () => {
+  const loadTodayData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // // Simulation de date : 2024-01-01
-      // const SIMULATED_DATE = '2024-01-01T00:00:00Z';
-      // const data = await motionService.getDayView(SIMULATED_DATE);
       const data = await motionService.getTodayView();
-
+      console.log(`REST todayData: ${data.graphData.length} points`);
       setTodayData(data);
+      motionWebSocketService.disconnect();
+      motionWebSocketService.connect();
     } catch (err: any) {
       if (err instanceof ApiError) {
         if (err.status === 404) setTodayData(null);
@@ -43,7 +41,41 @@ export default function HomeScreen() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    loadTodayData();
+  }, [loadTodayData]);
+
+  useEffect(() => {
+    motionWebSocketService.connect();
+
+    const unsubscribe = motionWebSocketService.subscribe((intensities: number[]) => {
+      setTodayData(prev => {
+        const current = prev ?? {
+          date: new Date(),
+          avgIntensity: 0,
+          avgDuration: 0,
+          episodeCount: 0,
+          lastEpisode: null,
+          graphData: [],
+          graphStart: new Date(),
+          graphEnd: new Date(),
+          graphMax: 0,
+          graphMin: 0,
+        };
+        const updated = [...current.graphData, ...intensities];
+        return {
+          ...current,
+          graphData: updated.length > MAX_GRAPH_POINTS
+            ? updated.slice(-MAX_GRAPH_POINTS)
+            : updated,
+        };
+      });
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   const intensityLabel = todayData
     ? todayData.avgIntensity < 1 ? 'Faible'
@@ -87,7 +119,7 @@ export default function HomeScreen() {
         {graphData.length > 0 ? (
           <>
             <MotionChart
-              data={graphData.slice(0, 100)}
+              data={graphData.slice()}
               height={200}
               label="Accéléromètre (norme)"
             />

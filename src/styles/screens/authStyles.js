@@ -9,10 +9,13 @@ export const createAuthStyles = (theme) =>
             borderTopStartRadius: 20,
             borderTopEndRadius: 20,
         },
+
         title: {
-            fontSize: 32,
-            fontWeight: 'bold',
-            marginBottom: 40,
+            fontSize: 24,
+            fontWeight: '600',
+            marginBottom: 28,
+            textAlign: 'center',
+            color: theme.colors.text,
         },
         inputGroup: {
             marginBottom: 20,
@@ -20,24 +23,29 @@ export const createAuthStyles = (theme) =>
         label: {
             marginBottom: 8,
             fontSize: 14,
+            color: theme.colors.text,
         },
         input: {
             borderWidth: 1,
-            borderColor: '#ccc',
+            borderColor: theme.colors.border,
             borderRadius: 8,
             padding: 12,
             fontSize: 16,
+            color: theme.colors.text,
+            backgroundColor: theme.colors.background,
         },
         passwordWrapper: {
             position: 'relative',
         },
         inputPassword: {
             borderWidth: 1,
-            borderColor: '#ccc',
+            borderColor: theme.colors.border,
             borderRadius: 8,
             padding: 12,
             paddingRight: 50,
             fontSize: 16,
+            color: theme.colors.text,
+            backgroundColor: theme.colors.background,
         },
         eyeButton: {
             position: 'absolute',
@@ -45,8 +53,8 @@ export const createAuthStyles = (theme) =>
             top: 12,
         },
         error: {
-            color: 'red',
-            marginBottom: 20,
+            color: theme.colors.error,
+            marginBottom: 16,
             fontSize: 14,
         },
         button: {
@@ -58,7 +66,7 @@ export const createAuthStyles = (theme) =>
         },
         buttonText: {
             color: '#fff',
-            fontWeight: 'bold',
+            fontWeight: '600',
             fontSize: 16,
         },
         loginRow: {
@@ -67,11 +75,11 @@ export const createAuthStyles = (theme) =>
         },
         loginText: {
             fontSize: 14,
+            color: theme.colors.textSecondary,
         },
         loginLink: {
             color: theme.colors.primary,
-            fontWeight: 'bold',
+            fontWeight: '600',
             fontSize: 14,
-            textAlign: 'right',
         },
     });

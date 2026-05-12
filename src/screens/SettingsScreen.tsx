@@ -1,7 +1,8 @@
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { useUser } from "../context/UserContext";
-import { View, Text, TouchableOpacity, Switch, Alert } from "react-native";
+import { View, Text, TouchableOpacity, Switch } from "react-native";
+import { confirm } from "@/src/utils/alert";
 import BackHeader from "../components/BackHeader";
 import { Ionicons } from "@expo/vector-icons";
 import { createSettingsStyles } from "../styles/screens/settingsStyles";
@@ -13,28 +14,18 @@ export default function SettingsScreen() {
   const settingsStyles = createSettingsStyles(theme);
 
   const handleLogout = () => {
-    Alert.alert(
-      "Logout",
-      "Are you sure you want to logout?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel"
-        },
-        {
-          text: "Logout",
-          style: "destructive",
-          onPress: async () => {
-            await logout();
-          }
-        }
-      ]
+    confirm(
+      "Se déconnecter",
+      "Êtes-vous sûr de vouloir vous déconnecter?",
+      async () => {
+        await logout();
+      }
     );
   };
 
   return (
     <View style={screenStyles.container}>
-      <BackHeader title="Settings" />
+      <BackHeader title="Paramètres" />
       <View>
         <View style={settingsStyles.settingRow}>
           <View style={settingsStyles.rowLeft}>
@@ -43,7 +34,7 @@ export default function SettingsScreen() {
               size={30}
               color={theme.colors.textSecondary}
             />
-            <Text style={settingsStyles.rowText}>Theme</Text>
+            <Text style={settingsStyles.rowText}>Thème</Text>
           </View>
           <Switch
             value={theme.mode === "dark"}
@@ -70,7 +61,7 @@ export default function SettingsScreen() {
               size={30}
               color={theme.colors.textSecondary}
             />
-            <Text style={settingsStyles.rowText}>Logout</Text>
+            <Text style={settingsStyles.rowText}>Se déconnecter</Text>
           </View>
           <Ionicons
             name="chevron-forward"
