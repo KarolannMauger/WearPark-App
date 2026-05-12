@@ -1,3 +1,4 @@
+import React from 'react';
 import { TouchableOpacity, Text, StyleProp, ViewStyle, TextStyle, ActivityIndicator } from "react-native";
 import { useTheme } from '../context/ThemeContext';
 import { createButtonStyles } from "../styles/components/buttonStyles";

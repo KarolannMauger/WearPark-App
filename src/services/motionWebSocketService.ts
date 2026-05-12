@@ -24,8 +24,6 @@ class MotionWebSocketService {
 
     this.ws = new WebSocket(`${wsUrl}/ws/motion?jwt=${token}`);
 
-    this.ws.onopen = () => console.log('WS connected');
-
     this.flushTimer = setInterval(() => {
       if (this.pendingPoints.length === 0) return;
       const points = [...this.pendingPoints];
@@ -37,11 +35,8 @@ class MotionWebSocketService {
       const arrayBuffer = event.data as ArrayBuffer;
       const view = new DataView(arrayBuffer);
       const value = view.getFloat32(0, true);
-      this.pendingPoints.push(value); // accumule sans setState
+      this.pendingPoints.push(value);
     };
-
-    this.ws.onerror = (error) => console.error('WS error', error);
-    this.ws.onclose = () => console.log('WS disconnected');
   }
 
   subscribe(handler: MessageHandler): () => void {
@@ -50,6 +45,10 @@ class MotionWebSocketService {
   }
 
   disconnect(): void {
+    if (this.flushTimer) {
+      clearInterval(this.flushTimer);
+      this.flushTimer = null;
+    }
     this.ws?.close();
     this.ws = null;
   }

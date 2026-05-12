@@ -1,3 +1,4 @@
+import React from 'react';
 import { Slot } from 'expo-router';
 import { View, Text, Platform, Image, TouchableOpacity } from 'react-native';
 import { useTheme } from '@/src/context/ThemeContext';

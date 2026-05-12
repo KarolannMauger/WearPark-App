@@ -1,6 +1,6 @@
 import { privateApiClient } from './api';
 import { ApiError } from '../errors/ApiError';
-import { UserSummary, AdminUsersResponse, AdminUserDetailsRequest } from '../types/adminUserTypes';
+import { AdminUsersResponse, AdminUserDetailsRequest } from '../types/adminUserTypes';
 
 export const adminService = {
   getUsers: async (params?: {

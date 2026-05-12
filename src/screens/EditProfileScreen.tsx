@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { useTheme } from "../context/ThemeContext";
@@ -7,7 +8,7 @@ import { useUser } from "@/src/context/UserContext";
 import BackHeader from "../components/BackHeader";
 import UserProfileForm from "../components/UserProfileForm";
 import { userService } from "../services/userService";
-import { User } from "@/src/types/user";
+import { PatchUserRequest, User } from "@/src/types/user";
 
 export default function EditProfileScreen() {
     const router = useRouter();
@@ -18,7 +19,7 @@ export default function EditProfileScreen() {
 
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (data: User) => {
+    const handleSubmit = async (data: PatchUserRequest) => {
         setIsLoading(true);
 
         try {

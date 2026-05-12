@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { createScreenStyles } from "../styles/screens/screenStyles";
 import { View, Text, Image, Platform, TouchableOpacity } from "react-native";
@@ -5,7 +6,6 @@ import Button from '../components/Button';
 import FeatureCard from '../components/FeatureCard';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React from 'react';
 import WebFooter from '../components/WebFooter';
 
 export default function WelcomeScreen() {
@@ -143,7 +143,7 @@ function WelcomeWebLayout() {
                             marginBottom: 40,
                             opacity: 0.9,
                         }]}>
-                            WearPark vous aide à monitorer et analyser vos tremblements
+                            WearPark vous aide à monitorer vos tremblements
                             Parkinsoniens avec précision. Accédez à votre tableau de bord
                             personnalisé et générez des rapports pour votre médecin.
                         </Text>
@@ -191,7 +191,7 @@ function WelcomeWebLayout() {
                     <View style={{ flex: 1 }}>
                         <FeatureCard
                             icon="analytics"
-                            title="Analyse en temps réel"
+                            title="Données en temps réel"
                             description="Visualisez vos tremblements avec des graphiques détaillés"
                         />
                         <FeatureCard

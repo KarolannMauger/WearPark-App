@@ -1,3 +1,4 @@
+import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '../context/ThemeContext';
@@ -77,7 +78,7 @@ export default function ProfileScreen() {
         </View>
 
         <TouchableOpacity
-          onPress={() => router.push("/editProfile")}
+          onPress={() => router.push("/edit-profile")}
           style={profileStyles.editButton}
         >
           <Text style={profileStyles.buttonText}>Modifier le profil</Text>

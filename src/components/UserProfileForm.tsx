@@ -1,5 +1,5 @@
 import { useTheme } from "../context/ThemeContext";
-import { useState } from "react";
+import React, { useState } from "react";
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Platform, } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import Checkbox from "expo-checkbox";

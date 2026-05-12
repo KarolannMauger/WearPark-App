@@ -1,47 +1,31 @@
 import { ApiError } from '../errors/ApiError';
 import { privateApiClient } from './api';
 import { base64ToFloatArray } from '@/src/utils/base64';
+import { MotionDayData, MotionMonthData } from '@/src/types/motion';
 
-export interface MotionDayData {
-  date: Date;
-  avgIntensity: number;
-  avgDuration: number;
-  episodeCount: number;
-  lastEpisode: Date | null;
-  graphData: number[];
-  graphStart: Date;
-  graphEnd: Date;
-  graphMax: number;
-  graphMin: number;
-}
-
-export interface MotionMonthData {
-  year: number;
-  month: number;
-  episodes: Array<{
-    date: string;
-    count: number;
-  }>;
-}
+const sanitize = (value: any): number | null => {
+  const n = Number(value);
+  return isNaN(n) ? null : n;
+};
 
 export const motionService = {
+
   getDayView: async (date: string): Promise<MotionDayData> => {
     try {
-      const response = await privateApiClient.get(`/motion/view/day`, { params: { date } });
-
-      const decodedGraphData = base64ToFloatArray(response.data.graph.data);
-
+      const response = await privateApiClient.get('/motion/view/day', { params: { date } });
+      const raw = response.data;
       return {
-        date: new Date(response.data.date),
-        avgIntensity: response.data.avgIntensity,
-        avgDuration: response.data.avgDurationMs / 1000,
-        episodeCount: response.data.nbEpisode,
-        lastEpisode: response.data.lastEpisode ? new Date(response.data.lastEpisode) : null,
-        graphData: decodedGraphData,
-        graphStart: new Date(response.data.graph.start),
-        graphEnd: new Date(response.data.graph.end),
-        graphMax: isFinite(response.data.graph.max) ? response.data.graph.max : 0,
-        graphMin: isFinite(response.data.graph.min) ? response.data.graph.min : 0,
+        ...raw,
+        meanAmplitude: sanitize(raw.meanAmplitude),
+        peakAmplitude: sanitize(raw.peakAmplitude),
+        variance: sanitize(raw.variance),
+        coverage: sanitize(raw.coverage),
+        graph: {
+          ...raw.graph,
+          max: sanitize(raw.graph.max),
+          min: sanitize(raw.graph.min),
+          data: base64ToFloatArray(raw.graph.data).filter(v => !isNaN(v)),
+        },
       };
     } catch (error) {
       throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données journalières.');
@@ -49,22 +33,13 @@ export const motionService = {
   },
 
   getTodayView: async (): Promise<MotionDayData> => {
-    const today = new Date().toISOString();
-    return motionService.getDayView(today);
+    return motionService.getDayView(new Date().toISOString());
   },
 
-  getMonthView: async (year: number, month: number): Promise<MotionMonthData> => {
+  getMonthView: async (date: string): Promise<MotionMonthData> => {
     try {
-      const response = await privateApiClient.get(`/motion/view/month`, { params: { year, month } });
-      const data = response.data;
-      return {
-        year: data.year,
-        month: data.month,
-        episodes: data.episodes.map((e: any) => ({
-          date: e.date,
-          count: e.count,
-        })),
-      };
+      const response = await privateApiClient.get('/motion/view/month', { params: { date } });
+      return response.data;
     } catch (error) {
       throw new ApiError(500, 'MOTION_ERROR', 'Erreur lors du chargement des données mensuelles.');
     }

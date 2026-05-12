@@ -1,6 +1,6 @@
 /**
  * Transforme une Date ou string en ISO UTC pour le backend
- * Exemple : 2000-01-0127T00:00:00Z
+ * Exemple : 2000-01-01T00:00:00Z
  */
 export const formatDateForAPI = (date?: Date | string): string | undefined => {
   if (!date) return undefined;
