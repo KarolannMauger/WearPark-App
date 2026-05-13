@@ -4,8 +4,8 @@ export const createMotionStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         padding: 6,
-        backgroundColor: '#fff',
-        borderBottomColor: 'lightGrey',
+        backgroundColor: theme.colors.background,
+        borderBottomColor: theme.colors.border,
         borderBottomWidth: 1,
     },
     rowForm: {
@@ -32,13 +32,13 @@ export const createMotionStyles = (theme) => StyleSheet.create({
         backgroundColor: theme.colors.primary,
     },
     primaryButtonText: {
-        color: '#fff',
+        color: theme.colors.white,
         fontWeight: 'bold',
         fontSize: 16,
     },
     emptyText: {
         textAlign: 'center',
-        color: '#999',
+        color: theme.colors.textSecondary,
         marginTop: 20,
     },
     dateButton: {
@@ -46,7 +46,7 @@ export const createMotionStyles = (theme) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: theme.colors.border || '#ccc',
+        borderColor: theme.colors.border,
         borderRadius: 8,
         padding: 12,
         marginBottom: 20,
@@ -64,13 +64,13 @@ export const createMotionStyles = (theme) => StyleSheet.create({
         marginBottom: 20,
     },
     datePickerDoneText: {
-        color: '#fff',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '600',
     },
 
     reportCard: {
-        backgroundColor: theme.colors.card || '#f5f5f5',
+        backgroundColor: theme.colors.card,
         borderRadius: 12,
         padding: 16,
         marginBottom: theme.spacing.md,
@@ -103,5 +103,52 @@ export const createMotionStyles = (theme) => StyleSheet.create({
 
     downloadButton: {
         padding: 8,
+    },
+    
+    reportPickerRow: {
+        marginBottom: theme.spacing.md,
+    },
+    reportArrowRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: theme.spacing.lg,
+        marginBottom: theme.spacing.sm,
+    },
+    reportArrowBtn: {
+        padding: theme.spacing.xs,
+    },
+    reportYearText: {
+        fontSize: 24,
+        fontWeight: '700',
+        minWidth: 64,
+        textAlign: 'center',
+        color: theme.colors.textPrimary,
+    },
+    reportMonthGrid: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: theme.spacing.sm,
+        marginBottom: theme.spacing.md + 4,
+    },
+    reportMonthBtn: {
+        width: '22%',
+        paddingVertical: 10,
+        borderRadius: theme.borderRadius.sm,
+        borderWidth: 1,
+        borderColor: theme.colors.border,
+        alignItems: 'center',
+        backgroundColor: theme.colors.card,
+    },
+    reportMonthBtnText: {
+        fontSize: 13,
+        fontWeight: '500',
+    },
+    reportMonthBtnDisabled: {
+        backgroundColor: theme.colors.disabled,
+        borderColor: theme.colors.borderDisabled,
+    },
+    reportButtonDisabled: {
+        opacity: 0.4,
     },
 });
