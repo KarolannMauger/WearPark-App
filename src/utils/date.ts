@@ -29,3 +29,14 @@ export const formatDateForApp = (date?: Date | string): string => {
 
 export const formatDate = (date?: string) =>
     date ? new Date(date).toLocaleDateString() : 'N/A';
+
+/**
+ * Formate la date de génération d'un rapport pour l'affichage UI.
+ * Exemple : "03 avril 2026"
+ */
+export const formatReportDate = (iso: string): string => {
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit', month: 'long', year: 'numeric',
+  });
+};
