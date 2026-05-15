@@ -12,11 +12,10 @@ export const createAuthStyles = (theme) =>
 
         title: {
             fontSize: 24,
-            fontWeight: '600',
+            fontWeight: '500',
             marginBottom: 28,
             textAlign: 'center',
             color: theme.colors.text,
-            ...theme.typography.h1,
         },
         inputGroup: {
             marginBottom: 20,
