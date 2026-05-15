@@ -43,7 +43,7 @@ export default function EditProfileScreen() {
 
     return (
         <View style={screenStyles.container}>
-            <BackHeader title="Edit Profil" />
+            <BackHeader title="Modifier le profil" />
 
             <UserProfileForm
                 initialData={user}
