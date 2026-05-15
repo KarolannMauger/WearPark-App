@@ -102,7 +102,7 @@ export default function AuthForm({ mode }: Props) {
 
             {error && <Text style={authStyles.error}>{error}</Text>}
 
-            <Button title={isLogin ? 'SE CONNECTER' : "S'INSCRIRE"} onPress={handleSubmit} loading={loading} style={authStyles.button}/>
+            <Button title={isLogin ? 'SE CONNECTER' : "S'INSCRIRE"} onPress={handleSubmit} loading={loading} style={authStyles.button} variant='primary'/>
 
             <View style={authStyles.loginRow}>
                 <Text style={authStyles.loginText}>

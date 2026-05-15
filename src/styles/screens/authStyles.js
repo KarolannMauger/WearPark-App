@@ -16,6 +16,7 @@ export const createAuthStyles = (theme) =>
             marginBottom: 28,
             textAlign: 'center',
             color: theme.colors.text,
+            ...theme.typography.h1,
         },
         inputGroup: {
             marginBottom: 20,
@@ -24,6 +25,7 @@ export const createAuthStyles = (theme) =>
             marginBottom: 8,
             fontSize: 14,
             color: theme.colors.text,
+            ...theme.typography.inputLabel,
         },
         input: {
             borderWidth: 1,
@@ -33,6 +35,7 @@ export const createAuthStyles = (theme) =>
             fontSize: 16,
             color: theme.colors.text,
             backgroundColor: theme.colors.background,
+            ...theme.typography.input,
         },
         passwordWrapper: {
             position: 'relative',

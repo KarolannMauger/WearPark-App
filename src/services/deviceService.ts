@@ -10,7 +10,7 @@ export const deviceService = {
       throw new ApiError(
         error.response?.status ?? 0,
         "",
-        error.response?.data?.message || "Error fetching devices"
+        error.response?.data?.message || "Erreur de récupération des appareils"
       );
     }
   },

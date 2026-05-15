@@ -300,7 +300,7 @@ export default function DeviceScreen() {
                         <TextInput
                             value={newKey}
                             onChangeText={setNewKey}
-                            placeholder="Device key"
+                            placeholder="Clé de l'appareil"
                             placeholderTextColor={theme.colors.textSecondary}
                             autoCapitalize="none"
                             autoCorrect={false}
