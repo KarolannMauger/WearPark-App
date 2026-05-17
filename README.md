@@ -3,7 +3,6 @@
 ![React Native](https://img.shields.io/badge/React_Native-0.76-3178C6?style=flat&logo=react&logoColor=white)
 ![Expo](https://img.shields.io/badge/Expo-52-000000?style=flat&logo=expo&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3-3178C6?style=flat&logo=typescript&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat)
 
 > Cross-platform mobile and web application for real-time Parkinsonian tremor monitoring.
 > Part of the **WearPark** research project.
