@@ -73,7 +73,7 @@ WearPark-App/
 src/
 ├── app/
 │   ├── (auth)/               # Login, register, complete profile
-│   ├── (tabs)/               # Home, history, s, profile
+│   ├── (tabs)/               # Home, history, motion reports, profile
 │   ├── admin/                # Admin console (web only)
 │   │   └── users/[id].tsx
 │   ├── devices.tsx
