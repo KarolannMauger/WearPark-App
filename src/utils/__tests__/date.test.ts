@@ -1,4 +1,4 @@
-import { formatDateForAPI, formatDateForApp } from '../date';
+import { formatDateForAPI, formatDateForApp, formatReportDate, formatDate } from '../date';
 
 describe('formatDateForAPI', () => {
   it('should convert a Date to ISO UTC string without milliseconds', () => {
@@ -70,5 +70,53 @@ describe('formatDateForApp', () => {
   it('should pad single digit days and months', () => {
     const date = new Date(2000, 0, 1); // 1 Jan 2000
     expect(formatDateForApp(date)).toBe('01/01/2000');
+  });
+});
+
+describe('formatReportDate', () => {
+  it('retourne une chaîne non vide pour une date ISO valide', () => {
+    const result = formatReportDate('2026-05-03T12:00:00Z');
+    expect(result).toBeTruthy();
+    expect(typeof result).toBe('string');
+  });
+
+  it("contient l'année dans la chaîne retournée", () => {
+    const result = formatReportDate('2026-05-03T12:00:00Z');
+    expect(result).toContain('2026');
+  });
+
+  it('contient le jour formaté sur 2 chiffres', () => {
+    const result = formatReportDate('2026-05-03T00:00:00Z');
+    expect(result).toMatch(/0[2-4]/); // 03 UTC peut devenir 02 ou 03 selon la timezone
+  });
+
+  it('retourne des résultats différents pour des mois différents', () => {
+    const jan = formatReportDate('2026-01-15T00:00:00Z');
+    const dec = formatReportDate('2026-12-15T00:00:00Z');
+    expect(jan).not.toBe(dec);
+  });
+
+  it('retourne des résultats différents pour des années différentes', () => {
+    const y2025 = formatReportDate('2025-05-01T00:00:00Z');
+    const y2026 = formatReportDate('2026-05-01T00:00:00Z');
+    expect(y2025).not.toBe(y2026);
+  });
+});
+
+describe('formatDate', () => {
+  it("retourne 'N/A' si la date est undefined", () => {
+    expect(formatDate(undefined)).toBe('N/A');
+  });
+
+  it('retourne une chaîne non vide pour une date ISO valide', () => {
+    const result = formatDate('2026-05-03T12:00:00Z');
+    expect(result).toBeTruthy();
+    expect(result).not.toBe('N/A');
+  });
+
+  it('retourne une date différente selon la valeur fournie', () => {
+    const r1 = formatDate('2026-01-01T00:00:00Z');
+    const r2 = formatDate('2026-12-31T00:00:00Z');
+    expect(r1).not.toBe(r2);
   });
 });
