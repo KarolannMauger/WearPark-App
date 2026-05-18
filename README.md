@@ -157,10 +157,11 @@ npm run test:coverage    # Coverage report
 
 Tests are written with **Jest** and cover services and utilities.
 
-| Module | Coverage |
+| Module | Cas couverts |
 |---|---|
 | `motionWebSocketService` | connect, subscribe, disconnect, buffer flush, timer cleanup |
 | `motionService` | response parsing, `"NaN"` sanitization, NaN float filtering, error propagation |
+| `reportService` | generate & download, getHistory (params par défaut / custom), downloadById, ApiError |
 | `adminService` | user listing, role update, soft delete, error handling |
 | `adminDeviceService` | device creation, key update, disable, error handling |
 | `deviceService` | device creation, key update, disable, error handling |
@@ -170,18 +171,30 @@ Tests are written with **Jest** and cover services and utilities.
 | `ThemeContext` | theme toggle, persistence, default values |
 | `UserContext` | login flow, register flow, logout, profile loading, route guards |
 | `base64` | float array encoding and decoding |
-| `date` | formatting, ISO conversion, edge cases |
+| `date` | formatting, ISO conversion, `formatReportDate`, `formatDate`, edge cases |
 | `storage` | get, set, delete, SecureStore integration |
 | `validators` | email, password, required field rules |
 | `alert` | cross-platform alert abstraction |
 
-Run coverage report:
+Run tests:
 
 ```bash
-npm run test:coverage
+npm test                 # Run all tests
+npm run test:watch       # Watch mode
+npm run test:coverage    # Coverage report (HTML + JSON)
 ```
 
-> Overall coverage target: **> 70%**
+> Coverage target : **≥ 80 %** sur les lignes, statements et fonctions.
+> Vérifié automatiquement par le pipeline CI à chaque PR et push.
+
+### CI / Coverage
+
+GitHub Actions s'exécute sur chaque **push** et **pull request** vers `develop` et `main` :
+
+1. Installation des dépendances (`npm ci`)
+2. Exécution de tous les tests avec coverage (`jest --coverage`)
+3. Vérification du seuil — la PR est bloquée si une métrique passe sous 80 %
+4. Publication d'un commentaire résumant le coverage directement sur la PR
 
 ---
 
