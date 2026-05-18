@@ -1,0 +1,124 @@
+name: CI — Tests & Coverage
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test:
+    name: Tests & Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage
+        run: npx jest --coverage --coverageReporters=json-summary --coverageReporters=text --forceExit
+        env:
+          CI: true
+
+      - name: Check coverage threshold (80%)
+        run: |
+          LINES=$(node -e "
+            const s = require('./coverage/coverage-summary.json').total;
+            console.log(Math.floor(s.lines.pct));
+          ")
+          STMTS=$(node -e "
+            const s = require('./coverage/coverage-summary.json').total;
+            console.log(Math.floor(s.statements.pct));
+          ")
+          FUNCS=$(node -e "
+            const s = require('./coverage/coverage-summary.json').total;
+            console.log(Math.floor(s.functions.pct));
+          ")
+          BRANCH=$(node -e "
+            const s = require('./coverage/coverage-summary.json').total;
+            console.log(Math.floor(s.branches.pct));
+          ")
+
+          echo "Lines:      $LINES%"
+          echo "Statements: $STMTS%"
+          echo "Functions:  $FUNCS%"
+          echo "Branches:   $BRANCH%"
+
+          FAILED=0
+          [ "$LINES"  -lt 80 ] && echo "FAIL: lines coverage $LINES% < 80%"      && FAILED=1
+          [ "$STMTS"  -lt 80 ] && echo "FAIL: statements coverage $STMTS% < 80%" && FAILED=1
+          [ "$FUNCS"  -lt 80 ] && echo "FAIL: functions coverage $FUNCS% < 80%"  && FAILED=1
+
+          [ $FAILED -eq 1 ] && exit 1
+          echo "Coverage OK"
+
+      - name: Post coverage comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs   = require('fs');
+            const path = require('path');
+
+            const summary = JSON.parse(
+              fs.readFileSync('coverage/coverage-summary.json', 'utf8')
+            ).total;
+
+            const pct   = (k) => summary[k].pct.toFixed(1);
+            const badge = (p) => parseFloat(p) >= 80 ? '✅' : '❌';
+
+            const lines   = pct('lines');
+            const stmts   = pct('statements');
+            const funcs   = pct('functions');
+            const branches = pct('branches');
+
+            const body = [
+              '## Coverage Report',
+              '',
+              '| Métrique     | Couverture | Seuil |',
+              '|:-------------|:----------:|:-----:|',
+              `| Lines        | ${badge(lines)} ${lines}%       | 80%   |`,
+              `| Statements   | ${badge(stmts)} ${stmts}%       | 80%   |`,
+              `| Functions    | ${badge(funcs)} ${funcs}%       | 80%   |`,
+              `| Branches     | ${badge(branches)} ${branches}%     | —     |`,
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner:      context.repo.owner,
+              repo:       context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c =>
+              c.user.login === 'github-actions[bot]' &&
+              c.body.includes('## Coverage Report')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner:      context.repo.owner,
+                repo:       context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner:      context.repo.owner,
+                repo:       context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
