@@ -3,8 +3,6 @@ import { privateApiClient } from '../api';
 import * as Sharing from 'expo-sharing';
 import { ApiError } from '@/src/errors/ApiError';
 
-// ── Mocks ─────────────────────────────────────────────────────────────────────
-
 const mockWrite = jest.fn();
 const mockFileUri = 'file://mock/document/rapport_test.pdf';
 
@@ -31,8 +29,6 @@ jest.mock('../api', () => ({
 const mockedApi   = privateApiClient as jest.Mocked<typeof privateApiClient>;
 const mockedShare = Sharing        as jest.Mocked<typeof Sharing>;
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 const makeArrayBuffer = () => new Uint8Array([37, 80, 68, 70]).buffer; // %PDF
 
 const sampleReport = {
@@ -43,16 +39,13 @@ const sampleReport = {
   generatedAt: '2026-05-01T12:00:00Z',
 };
 
-// ── Tests ─────────────────────────────────────────────────────────────────────
-
 describe('reportService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  // ── generateAndDownload ────────────────────────────────────────────────────
   describe('generateAndDownload', () => {
-    it('appelle POST /report/generate avec les bons paramètres', async () => {
+    it('call POST /report/generate with the correct parameters', async () => {
       mockedApi.post.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(true);
       mockedShare.shareAsync.mockResolvedValue(undefined);
@@ -69,7 +62,7 @@ describe('reportService', () => {
       );
     });
 
-    it('écrit le fichier PDF et ouvre le partage quand le partage est disponible', async () => {
+    it('should write the PDF file and open the share when share is available', async () => {
       mockedApi.post.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(true);
       mockedShare.shareAsync.mockResolvedValue(undefined);
@@ -83,7 +76,7 @@ describe('reportService', () => {
       );
     });
 
-    it("n'appelle pas shareAsync quand le partage n'est pas disponible", async () => {
+    it("should not call shareAsync when sharing is not available", async () => {
       mockedApi.post.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(false);
 
@@ -93,7 +86,7 @@ describe('reportService', () => {
       expect(mockedShare.shareAsync).not.toHaveBeenCalled();
     });
 
-    it('génère un nom de fichier avec le mois paddé sur 2 chiffres', async () => {
+    it('should generate a filename with the month padded to 2 digits', async () => {
       const { File } = require('expo-file-system');
       mockedApi.post.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(false);
@@ -106,7 +99,7 @@ describe('reportService', () => {
       );
     });
 
-    it('lance ApiError si la requête échoue', async () => {
+    it('should throw ApiError if the request fails', async () => {
       mockedApi.post.mockRejectedValue(new Error('Network error'));
 
       await expect(
@@ -117,7 +110,7 @@ describe('reportService', () => {
       });
     });
 
-    it('lance une instance ApiError', async () => {
+    it('should throw an ApiError instance', async () => {
       mockedApi.post.mockRejectedValue(new Error('fail'));
 
       await expect(
@@ -126,9 +119,9 @@ describe('reportService', () => {
     });
   });
 
-  // ── getHistory ─────────────────────────────────────────────────────────────
+  
   describe('getHistory', () => {
-    it('retourne la liste des rapports', async () => {
+    it('should return the list of reports', async () => {
       mockedApi.get.mockResolvedValue({ data: [sampleReport] });
 
       const result = await reportService.getHistory();
@@ -136,7 +129,7 @@ describe('reportService', () => {
       expect(result).toEqual([sampleReport]);
     });
 
-    it('utilise les paramètres par défaut page=0 et size=50', async () => {
+    it('should use the default parameters page=0 and size=50', async () => {
       mockedApi.get.mockResolvedValue({ data: [] });
 
       await reportService.getHistory();
@@ -147,7 +140,7 @@ describe('reportService', () => {
       );
     });
 
-    it('accepte des paramètres personnalisés', async () => {
+    it('should accept custom parameters', async () => {
       mockedApi.get.mockResolvedValue({ data: [] });
 
       await reportService.getHistory(2, 10);
@@ -158,7 +151,7 @@ describe('reportService', () => {
       );
     });
 
-    it('retourne une liste vide si aucun rapport', async () => {
+    it('should return an empty list if no reports are available', async () => {
       mockedApi.get.mockResolvedValue({ data: [] });
 
       const result = await reportService.getHistory();
@@ -166,7 +159,7 @@ describe('reportService', () => {
       expect(result).toEqual([]);
     });
 
-    it('lance ApiError si la requête échoue', async () => {
+    it('should throw ApiError if the request fails', async () => {
       mockedApi.get.mockRejectedValue(new Error('Network error'));
 
       await expect(reportService.getHistory()).rejects.toMatchObject({
@@ -175,16 +168,15 @@ describe('reportService', () => {
       });
     });
 
-    it('lance une instance ApiError', async () => {
+    it('should throw an ApiError instance', async () => {
       mockedApi.get.mockRejectedValue(new Error('fail'));
 
       await expect(reportService.getHistory()).rejects.toBeInstanceOf(ApiError);
     });
   });
 
-  // ── downloadById ──────────────────────────────────────────────────────────
   describe('downloadById', () => {
-    it('appelle GET /report/{id}/download avec le bon id', async () => {
+    it('should call GET /report/{id}/download with the correct id', async () => {
       mockedApi.get.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(true);
       mockedShare.shareAsync.mockResolvedValue(undefined);
@@ -197,7 +189,7 @@ describe('reportService', () => {
       );
     });
 
-    it('écrit le fichier et ouvre le partage', async () => {
+    it('should write the file and open the share', async () => {
       mockedApi.get.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(true);
       mockedShare.shareAsync.mockResolvedValue(undefined);
@@ -211,7 +203,7 @@ describe('reportService', () => {
       );
     });
 
-    it('génère un nom de fichier correct à partir du rapport', async () => {
+    it('should generate a correct filename from the report', async () => {
       const { File } = require('expo-file-system');
       mockedApi.get.mockResolvedValue({ data: makeArrayBuffer() });
       mockedShare.isAvailableAsync.mockResolvedValue(false);
@@ -224,7 +216,7 @@ describe('reportService', () => {
       );
     });
 
-    it('lance ApiError si la requête échoue', async () => {
+    it('should throw ApiError if the request fails', async () => {
       mockedApi.get.mockRejectedValue(new Error('Network error'));
 
       await expect(
@@ -235,7 +227,7 @@ describe('reportService', () => {
       });
     });
 
-    it('lance une instance ApiError', async () => {
+    it('should throw an ApiError instance', async () => {
       mockedApi.get.mockRejectedValue(new Error('fail'));
 
       await expect(
