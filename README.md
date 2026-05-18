@@ -157,11 +157,11 @@ npm run test:coverage    # Coverage report
 
 Tests are written with **Jest** and cover services and utilities.
 
-| Module | Cas couverts |
+| Module | Cases covered |
 |---|---|
 | `motionWebSocketService` | connect, subscribe, disconnect, buffer flush, timer cleanup |
 | `motionService` | response parsing, `"NaN"` sanitization, NaN float filtering, error propagation |
-| `reportService` | generate & download, getHistory (params par défaut / custom), downloadById, ApiError |
+| `reportService` | generate & download, getHistory (default / custom params), downloadById, ApiError |
 | `adminService` | user listing, role update, soft delete, error handling |
 | `adminDeviceService` | device creation, key update, disable, error handling |
 | `deviceService` | device creation, key update, disable, error handling |
@@ -184,17 +184,17 @@ npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report (HTML + JSON)
 ```
 
-> Coverage target : **≥ 80 %** sur les lignes, statements et fonctions.
-> Vérifié automatiquement par le pipeline CI à chaque PR et push.
+> Coverage target: **≥ 80%** on lines, statements and functions.
+> Enforced automatically by the CI pipeline on every PR and push.
 
 ### CI / Coverage
 
-GitHub Actions s'exécute sur chaque **push** et **pull request** vers `develop` et `main` :
+GitHub Actions runs on every **push** and **pull request** targeting `develop` and `main`:
 
-1. Installation des dépendances (`npm ci`)
-2. Exécution de tous les tests avec coverage (`jest --coverage`)
-3. Vérification du seuil — la PR est bloquée si une métrique passe sous 80 %
-4. Publication d'un commentaire résumant le coverage directement sur la PR
+1. Install dependencies (`npm ci`)
+2. Run all tests with coverage (`jest --coverage`)
+3. Check threshold — the PR is blocked if any metric drops below 80%
+4. Post a coverage summary comment directly on the pull request
 
 ---
 
