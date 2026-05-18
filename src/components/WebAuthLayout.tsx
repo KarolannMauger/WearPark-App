@@ -24,7 +24,7 @@ export default function WebAuthLayout({ children }: Props) {
                 }}>
                     <TouchableOpacity onPress={() => router.push('/')}>
                         <Image
-                            source={require('../../assets/images/wearkpark-logo-white.png')}
+                            source={require('../../assets/images/wearpark-logo-white.png')}
                             style={{ height: 40, width: 160 }}
                             resizeMode="contain"
                         />

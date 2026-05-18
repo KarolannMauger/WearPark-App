@@ -12,6 +12,7 @@ import { ApiError } from '@/src/errors/ApiError';
 import Button from '../components/Button';
 import { motionWebSocketService } from '../services/motionWebSocketService';
 import { MotionDayData } from '@/src/types/motion';
+import MobileOnlyGuard from '../components/MobileOnlyGuard';
 
 export default function HomeScreen() {
   const theme = useTheme();
@@ -98,82 +99,84 @@ export default function HomeScreen() {
   const graphData = todayData?.graph.data.filter(val => !isNaN(val)) ?? [];
 
   return (
-    <ScrollView
-      style={screenStyles.container}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 60 }}
-    >
-      <Text style={screenStyles.pageTitle}>Tableau de bord</Text>
+    <MobileOnlyGuard>
+      <ScrollView
+        style={screenStyles.container}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 60 }}
+      >
+        <Text style={screenStyles.pageTitle}>Tableau de bord</Text>
 
-      {/* ── Graphique temps rel ── */}
-      <View style={{ marginBottom: 24 }}>
-        <Text style={screenStyles.sectionTitle}>Tremblement récent</Text>
-        {graphData.length > 0 ? (
-          <MotionChart
-            data={graphData.slice()}
-            height={200}
-            label="Accéléromètre (norme)"
-          />
-        ) : (
-          <Text style={{ textAlign: 'center', color: theme.colors.textSecondary, padding: 20 }}>
-            Aucun épisode détecté aujourd'hui
-          </Text>
-        )}
-      </View>
-
-      <View>
-        <Text style={screenStyles.sectionTitle}>Résumé du jour</Text>
-
-        <View style={homeStyles.rowContainer}>
-          <View style={homeStyles.cardContainer}>
-            <Text style={homeStyles.cardTitle}>Intensité moyenne</Text>
-            <Text style={homeStyles.info}>{intensityLabel}</Text>
-            <Text style={homeStyles.cardSubtitle}>
-              {todayData?.meanAmplitude != null && todayData.peakAmplitude !== undefined
-                ? `${Number(todayData.peakAmplitude).toFixed(2)} m/s²`
-                : '--'}
+        {/* ── Graphique temps rel ── */}
+        <View style={{ marginBottom: 24 }}>
+          <Text style={screenStyles.sectionTitle}>Tremblement récent</Text>
+          {graphData.length > 0 ? (
+            <MotionChart
+              data={graphData.slice()}
+              height={200}
+              label="Accéléromètre (norme)"
+            />
+          ) : (
+            <Text style={{ textAlign: 'center', color: theme.colors.textSecondary, padding: 20 }}>
+              Aucun épisode détecté aujourd'hui
             </Text>
+          )}
+        </View>
+
+        <View>
+          <Text style={screenStyles.sectionTitle}>Résumé du jour</Text>
+
+          <View style={homeStyles.rowContainer}>
+            <View style={homeStyles.cardContainer}>
+              <Text style={homeStyles.cardTitle}>Intensité moyenne</Text>
+              <Text style={homeStyles.info}>{intensityLabel}</Text>
+              <Text style={homeStyles.cardSubtitle}>
+                {todayData?.meanAmplitude != null && todayData.peakAmplitude !== undefined
+                  ? `${Number(todayData.peakAmplitude).toFixed(2)} m/s²`
+                  : '--'}
+              </Text>
+            </View>
+
+            <View style={homeStyles.cardContainer}>
+              <Text style={homeStyles.cardTitle}>Pic d'intensité</Text>
+              <Text style={homeStyles.info}>
+                {todayData?.peakAmplitude != null && todayData.peakAmplitude !== undefined
+                  ? `${Number(todayData.meanAmplitude).toFixed(2)}`
+                  : '--'}
+              </Text>
+              <Text style={homeStyles.cardSubtitle}>m/s²</Text>
+            </View>
           </View>
 
-          <View style={homeStyles.cardContainer}>
-            <Text style={homeStyles.cardTitle}>Pic d'intensité</Text>
-            <Text style={homeStyles.info}>
-              {todayData?.peakAmplitude != null && todayData.peakAmplitude !== undefined
-                ? `${Number(todayData.meanAmplitude).toFixed(2)}`
-                : '--'}
-            </Text>
-            <Text style={homeStyles.cardSubtitle}>m/s²</Text>
+          <View style={homeStyles.rowContainer}>
+            <View style={homeStyles.cardContainer}>
+              <Text style={homeStyles.cardTitle}>Variance</Text>
+              <Text style={homeStyles.info}>
+                {todayData?.variance != null && todayData.peakAmplitude !== undefined
+                  ? Number(todayData.variance).toFixed(3)
+                  : '--'}
+              </Text>
+              <Text style={homeStyles.cardSubtitle}>stabilité</Text>
+            </View>
+
+            <View style={homeStyles.cardContainer}>
+              <Text style={homeStyles.cardTitle}>Couverture</Text>
+              <Text style={homeStyles.info}>
+                {todayData?.coverage != null && todayData.peakAmplitude !== undefined
+                  ? `${(Number(todayData.coverage) * 100).toFixed(0)}%`
+                  : '--'}
+              </Text>
+              <Text style={homeStyles.cardSubtitle}>du jour</Text>
+            </View>
           </View>
         </View>
 
-        <View style={homeStyles.rowContainer}>
-          <View style={homeStyles.cardContainer}>
-            <Text style={homeStyles.cardTitle}>Variance</Text>
-            <Text style={homeStyles.info}>
-              {todayData?.variance != null && todayData.peakAmplitude !== undefined
-                ? Number(todayData.variance).toFixed(3)
-                : '--'}
-            </Text>
-            <Text style={homeStyles.cardSubtitle}>stabilité</Text>
-          </View>
-
-          <View style={homeStyles.cardContainer}>
-            <Text style={homeStyles.cardTitle}>Couverture</Text>
-            <Text style={homeStyles.info}>
-              {todayData?.coverage != null && todayData.peakAmplitude !== undefined
-                ? `${(Number(todayData.coverage) * 100).toFixed(0)}%`
-                : '--'}
-            </Text>
-            <Text style={homeStyles.cardSubtitle}>du jour</Text>
-          </View>
-        </View>
-      </View>
-
-      <Button
-        onPress={loadTodayData}
-        title="Recharger"
-        style={{ marginTop: 20 }}
-      />
-    </ScrollView>
+        <Button
+          onPress={loadTodayData}
+          title="Recharger"
+          style={{ marginTop: 20 }}
+        />
+      </ScrollView>
+    </MobileOnlyGuard>
   );
 }
