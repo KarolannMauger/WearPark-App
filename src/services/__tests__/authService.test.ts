@@ -69,6 +69,35 @@ describe("authService", () => {
         authService.register({ email: validEmail, password: validPassword })
       ).rejects.toMatchObject({ code: "NETWORK_ERROR" });
     });
+
+    it('should use backend code and message when provided', async () => {
+      mockedApi.post.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 400,
+          data: { code: 'CUSTOM_CODE', message: 'Custom backend message' },
+        },
+      });
+
+      await expect(
+        authService.register({ email: validEmail, password: validPassword })
+      ).rejects.toMatchObject({
+        code: 'CUSTOM_CODE',
+        message: 'Custom backend message',
+      });
+    });
+
+    it('should throw VALIDATION_ERROR on invalid email', async () => {
+      await expect(
+        authService.register({ email: 'invalid', password: validPassword })
+      ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    });
+
+    it('should throw VALIDATION_ERROR on invalid password', async () => {
+      await expect(
+        authService.register({ email: validEmail, password: '123' })
+      ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    });
   });
 
   describe("login", () => {
@@ -141,6 +170,40 @@ describe("authService", () => {
         JSON.stringify({ email: validEmail })
       );
     });
+
+    it('should use backend code and message when provided', async () => {
+      mockedApi.post.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 400,
+          data: { code: 'CUSTOM_CODE', message: 'Custom backend message' },
+        },
+      });
+
+      await expect(
+        authService.login(validEmail, validPassword)
+      ).rejects.toMatchObject({
+        code: 'CUSTOM_CODE',
+        message: 'Custom backend message',
+      });
+    });
+
+    it('should throw VALIDATION_ERROR on invalid email', async () => {
+      await expect(
+        authService.login('invalid', validPassword)
+      ).rejects.toMatchObject({ code: 'VALIDATION_ERROR' });
+    });
+
+    it('should throw SERVER_ERROR on unknown status', async () => {
+      mockedApi.post.mockRejectedValue({
+        isAxiosError: true,
+        response: { status: 418, data: {} },
+      });
+
+      await expect(
+        authService.login(validEmail, validPassword)
+      ).rejects.toMatchObject({ code: 'SERVER_ERROR' });
+    });
   });
 
   describe("logout", () => {
@@ -169,6 +232,14 @@ describe("authService", () => {
       const user = await authService.getStoredUser();
 
       expect(user).toEqual(mockUser);
+    });
+
+    it('should return null on JSON parse error', async () => {
+      mockedStorage.get.mockResolvedValue('invalid json {{{');
+
+      const user = await authService.getStoredUser();
+
+      expect(user).toBeNull();
     });
   });
 
