@@ -43,7 +43,7 @@ export default function AdminLayout() {
                 borderColor: theme.colors.border
             }}>
                 <Image
-                    source={require('../../../assets/images/wearkpark-logo.png')}
+                    source={require('../../../assets/images/wearpark-logo.png')}
                     style={{ width: '100%', height: 60, marginBottom: 40 }}
                     resizeMode="contain"
                 />

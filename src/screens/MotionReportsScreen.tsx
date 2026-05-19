@@ -10,8 +10,9 @@ import ReportMonthPicker from '../components/ReportMonthPicker';
 import { reportService } from '../services/reportService';
 import { MONTHS_FR } from '../constants/report.constants';
 import { Report } from '../types/report';
+import MobileOnlyGuard from '../components/MobileOnlyGuard';
 
-const currentYear  = new Date().getFullYear();
+const currentYear = new Date().getFullYear();
 const currentMonth = new Date().getMonth() + 1; // 1-based
 
 
@@ -21,16 +22,16 @@ export default function ReportsScreen() {
   const motionStyles = createMotionStyles(theme);
 
   // Picker state
-  const [selectedYear,  setSelectedYear]  = useState<number>(currentYear);
+  const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [selectedMonth, setSelectedMonth] = useState<number>(currentMonth);
 
   // Data state
-  const [reports,        setReports]        = useState<Report[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [initialLoading, setInitialLoading] = useState(true);
-  const [refreshing,     setRefreshing]     = useState(false);
-  const [generating,     setGenerating]     = useState(false);
-  const [downloadingId,  setDownloadingId]  = useState<string | null>(null);
-  const [error,          setError]          = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Data loading
 
@@ -99,67 +100,69 @@ export default function ReportsScreen() {
   }
 
   return (
-    <ScrollView
-      style={screenStyles.container}
-      showsVerticalScrollIndicator={false}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-    >
-      <Text style={screenStyles.pageTitle}>Rapports</Text>
-
-      <Text style={screenStyles.sectionTitle}>Générer un rapport</Text>
-
-      <ReportMonthPicker
-        selectedYear={selectedYear}
-        selectedMonth={selectedMonth}
-        currentYear={currentYear}
-        currentMonth={currentMonth}
-        onYearChange={setSelectedYear}
-        onMonthChange={setSelectedMonth}
-        theme={theme}
-        labelStyle={motionStyles.label}
-      />
-
-      <TouchableOpacity
-        style={[
-          motionStyles.button,
-          motionStyles.primaryButton,
-          isFutureMonth && motionStyles.reportButtonDisabled,
-          { marginBottom: 32 },
-        ]}
-        onPress={handleGenerate}
-        disabled={generating || isFutureMonth}
+    <MobileOnlyGuard>
+      <ScrollView
+        style={screenStyles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {generating ? (
-          <ActivityIndicator color={theme.colors.white} />
-        ) : (
-          <Text style={motionStyles.primaryButtonText}>
-            Générer — {MONTHS_FR[selectedMonth - 1]} {selectedYear}
-          </Text>
-        )}
-      </TouchableOpacity>
+        <Text style={screenStyles.pageTitle}>Rapports</Text>
 
-      <Text style={screenStyles.sectionTitle}>
-        Historique ({reports.length})
-      </Text>
+        <Text style={screenStyles.sectionTitle}>Générer un rapport</Text>
 
-      {reports.length === 0 ? (
-        <Text style={motionStyles.emptyText}>
-          Aucun rapport généré pour le moment.{'\n'}
-          Sélectionnez un mois et appuyez sur « Générer ».
+        <ReportMonthPicker
+          selectedYear={selectedYear}
+          selectedMonth={selectedMonth}
+          currentYear={currentYear}
+          currentMonth={currentMonth}
+          onYearChange={setSelectedYear}
+          onMonthChange={setSelectedMonth}
+          theme={theme}
+          labelStyle={motionStyles.label}
+        />
+
+        <TouchableOpacity
+          style={[
+            motionStyles.button,
+            motionStyles.primaryButton,
+            isFutureMonth && motionStyles.reportButtonDisabled,
+            { marginBottom: 32 },
+          ]}
+          onPress={handleGenerate}
+          disabled={generating || isFutureMonth}
+        >
+          {generating ? (
+            <ActivityIndicator color={theme.colors.white} />
+          ) : (
+            <Text style={motionStyles.primaryButtonText}>
+              Générer — {MONTHS_FR[selectedMonth - 1]} {selectedYear}
+            </Text>
+          )}
+        </TouchableOpacity>
+
+        <Text style={screenStyles.sectionTitle}>
+          Historique ({reports.length})
         </Text>
-      ) : (
-        reports.map((report) => (
-          <ReportCard
-            key={report.id}
-            report={report}
-            isDownloading={downloadingId === report.id}
-            onDownload={() => handleDownload(report)}
-            theme={theme}
-          />
-        ))
-      )}
 
-      <View style={{ height: 32 }} />
-    </ScrollView>
+        {reports.length === 0 ? (
+          <Text style={motionStyles.emptyText}>
+            Aucun rapport généré pour le moment.{'\n'}
+            Sélectionnez un mois et appuyez sur « Générer ».
+          </Text>
+        ) : (
+          reports.map((report) => (
+            <ReportCard
+              key={report.id}
+              report={report}
+              isDownloading={downloadingId === report.id}
+              onDownload={() => handleDownload(report)}
+              theme={theme}
+            />
+          ))
+        )}
+
+        <View style={{ height: 32 }} />
+      </ScrollView>
+    </MobileOnlyGuard>
   );
 }

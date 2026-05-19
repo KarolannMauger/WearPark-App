@@ -37,7 +37,7 @@ export default function LoginScreen() {
                         resizeMode="contain"
                     />
                     <Image
-                        source={require('../../assets/images/wearkpark-title-white.png')}
+                        source={require('../../assets/images/wearpark-title-white.png')}
                         style={{ height: 36, alignSelf: 'center', marginTop: 10 }}
                         resizeMode="contain"
                     />

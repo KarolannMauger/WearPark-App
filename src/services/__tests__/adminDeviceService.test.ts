@@ -50,6 +50,17 @@ describe('adminDeviceService', () => {
         message: 'create error',
       });
     });
+
+    it('should use fallback status 0 when no response', async () => {
+      mockedApi.post.mockRejectedValue(new Error('Network error'));
+
+      await expect(
+        adminDeviceService.createDevice('user1', 'DEVICE_KEY')
+      ).rejects.toMatchObject({
+        status: 0,
+        message: 'Error creating device',
+      });
+    });
   });
 
   describe('updateDevice', () => {
@@ -86,6 +97,19 @@ describe('adminDeviceService', () => {
         message: 'update error',
       });
     });
+
+    it('should use fallback message when no data message', async () => {
+      mockedApi.patch.mockRejectedValue({
+        response: { status: 500, data: {} },
+      });
+
+      await expect(
+        adminDeviceService.updateDevice('device1', 'NEW_KEY')
+      ).rejects.toMatchObject({
+        status: 500,
+        message: 'Error updating device',
+      });
+    });
   });
 
   describe('disableDevice', () => {
@@ -112,6 +136,17 @@ describe('adminDeviceService', () => {
       ).rejects.toMatchObject({
         status: 403,
         message: 'forbidden',
+      });
+    });
+
+    it('should use fallback status 0 when no response', async () => {
+      mockedApi.patch.mockRejectedValue(new Error('Network error'));
+
+      await expect(
+        adminDeviceService.disableDevice('device1')
+      ).rejects.toMatchObject({
+        status: 0,
+        message: 'Error disabling device',
       });
     });
   });

@@ -27,6 +27,7 @@ export default{
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "output": "static",
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
