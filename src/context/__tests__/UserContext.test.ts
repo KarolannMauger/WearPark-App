@@ -159,9 +159,11 @@ describe("UserContext", () => {
 
 
   it("register should redirect user to complete-profile", async () => {
+    const incompleteUser: User = { ...mockUser, firstName: "" }; // ← profil incomplet
+
     (authServiceModule.authService.register as jest.Mock).mockResolvedValue(undefined);
     (authServiceModule.authService.login as jest.Mock).mockResolvedValue(undefined);
-    (userServiceModule.userService.getProfile as jest.Mock).mockResolvedValue(mockUser);
+    (userServiceModule.userService.getProfile as jest.Mock).mockResolvedValue(incompleteUser);
     (useSegments as jest.Mock).mockReturnValue(["(auth)"]);
 
     const { result } = renderHook(() => useUser(), { wrapper });
@@ -173,7 +175,7 @@ describe("UserContext", () => {
     });
 
     expect(mockReplace).toHaveBeenCalledWith("/(auth)/complete-profile");
-    expect(result.current.user).toEqual(mockUser);
+    expect(result.current.user).toEqual(incompleteUser);
   });
 
   it("register should redirect admin to admin home", async () => {
@@ -192,7 +194,7 @@ describe("UserContext", () => {
       await result.current.register("admin@test.com", "password");
     });
 
-    expect(mockReplace).toHaveBeenCalledWith("/(admin)/home");
+    expect(mockReplace).toHaveBeenCalledWith("/admin/dashboard");
   });
 
   it("logout should clear user and redirect", async () => {
@@ -226,6 +228,26 @@ describe("UserContext", () => {
     });
 
     expect(result.current.user?.firstName).toBe("Jane");
+  });
+
+  it("refreshUser should update user state", async () => {
+    const updatedUser: User = { ...mockUser, firstName: "Updated" };
+
+    (storage.get as jest.Mock).mockResolvedValue("token");
+    (userServiceModule.userService.getProfile as jest.Mock)
+      .mockResolvedValueOnce(mockUser)
+      .mockResolvedValueOnce(updatedUser);
+    (useSegments as jest.Mock).mockReturnValue(["(tabs)"]);
+
+    const { result } = renderHook(() => useUser(), { wrapper });
+
+    await waitFor(() => expect(result.current.isLoading).toBe(false));
+
+    await act(async () => {
+      await result.current.refreshUser();
+    });
+
+    expect(result.current.user?.firstName).toBe("Updated");
   });
 
   it("useUser throws outside provider", () => {

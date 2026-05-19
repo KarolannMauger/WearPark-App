@@ -13,6 +13,7 @@ interface UserContextType {
   register: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  refreshUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -73,10 +74,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     const segment = segments[0];
 
-    const isAdminGroup = segment === "(admin)";
+    const isAdminGroup = segment === "admin";
     const isWelcome = !segment || segment === "index";
     const isCompleteProfile = segments.includes("complete-profile");
-
     const isAuth = segment === "(auth)";
 
     if (!user && !isAuth && !isWelcome) {
@@ -127,7 +127,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.error("Login error in UserContext:", error);
       throw error;
     }
+  };
 
+  const refreshUser = async (): Promise<void> => {
+    try {
+      const profile = await userService.getProfile();
+      setUser(normalizeUser(profile));
+    } catch (error) {
+      console.error("Error refreshing user:", error);
+    }
   };
 
   const register = async (
@@ -143,17 +151,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
       setUser(normalized);
 
-      // Admin skip profile completion
-      if (normalized.role === "ADMIN") {
-        router.replace("/(admin)/home");
-      } else {
-        router.replace("/(auth)/complete-profile");
-      }
+      router.replace(getHomeRoute(normalized));
     } catch (error) {
       console.error("Register error in UserContext:", error);
       throw error;
     }
-
   };
 
   const logout = async (): Promise<void> => {
@@ -182,6 +184,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         login,
         register,
         logout,
+        refreshUser,
         updateUser,
       }}
     >
