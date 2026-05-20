@@ -150,25 +150,50 @@ export default function UserProfileForm({
             </View>
 
             <Text style={theme.typography.inputLabel}>Date de naissance *</Text>
-            <TouchableOpacity
-                onPress={() => setShowDatePicker(true)}
-                disabled={isLoading}
-                style={styles.dateButton}
-            >
-                <Text style={styles.dateButtonText}>
-                    {formatDate(dateOfBirth)}
-                </Text>
-            </TouchableOpacity>
 
-            {showDatePicker && (
-                <DateTimePicker
-                    value={dateOfBirth}
-                    mode="date"
-                    display={Platform.OS === "ios" ? "spinner" : "default"}
-                    onChange={onDateChange}
-                    maximumDate={new Date()}
-                    minimumDate={new Date(1900, 0, 1)}
+            {Platform.OS === 'web' ? (
+                <input
+                    type="date"
+                    value={formatDate(dateOfBirth)}
+                    max={formatDate(new Date())}
+                    min="1900-01-01"
+                    onChange={(e) => {
+                        if (e.target.value) setDateOfBirth(new Date(e.target.value));
+                    }}
+                    style={{
+                        width: '30%',
+                        padding: '10px',
+                        borderRadius: 8,
+                        border: `1px solid ${theme.colors.border}`,
+                        fontSize: 16,
+                        marginBottom: 12,
+                        color: theme.colors.textPrimary,
+                        backgroundColor: theme.colors.card,
+                    }}
                 />
+            ) : (
+                <>
+                    <TouchableOpacity
+                        onPress={() => setShowDatePicker(true)}
+                        disabled={isLoading}
+                        style={styles.dateButton}
+                    >
+                        <Text style={styles.dateButtonText}>
+                            {formatDate(dateOfBirth)}
+                        </Text>
+                    </TouchableOpacity>
+
+                    {showDatePicker && (
+                        <DateTimePicker
+                            value={dateOfBirth}
+                            mode="date"
+                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                            onChange={onDateChange}
+                            maximumDate={new Date()}
+                            minimumDate={new Date(1900, 0, 1)}
+                        />
+                    )}
+                </>
             )}
 
             <Text style={theme.typography.inputLabel}>Courriel *</Text>

@@ -7,6 +7,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { deviceService } from '@/src/services/deviceService';
 import { ApiError } from '@/src/errors/ApiError';
 import BackHeader from '../components/BackHeader';
+import { useUser } from '../context/UserContext';
 
 interface DeviceUserResponse {
     id: string;
@@ -18,6 +19,7 @@ interface DeviceUserResponse {
 export default function DeviceScreen() {
     const theme = useTheme();
     const screenStyles = createScreenStyles(theme);
+    const { refreshUser } = useUser();
 
     const [devices, setDevices]       = useState<DeviceUserResponse[]>([]);
     const [loading, setLoading]       = useState(true);
@@ -60,6 +62,7 @@ export default function DeviceScreen() {
             setNewKey('');
             setShowAddForm(false);
             loadDevices();
+            await refreshUser();
         } catch (err: any) {
             setAddError(err?.message ?? 'Erreur lors de la création.');
         } finally {
@@ -76,6 +79,7 @@ export default function DeviceScreen() {
             await deviceService.updateDevice(editingId, trimmed);
             setEditingId(null);
             loadDevices();
+            await refreshUser();
         } catch (err: any) {
             setSaveError(err?.message ?? 'Erreur lors de la sauvegarde.');
         } finally {
@@ -96,6 +100,7 @@ export default function DeviceScreen() {
                         try {
                             await deviceService.disableDevice(deviceId);
                             loadDevices();
+                            await refreshUser();
                         } catch {
                             Alert.alert('Erreur', 'Impossible de désactiver.');
                         }

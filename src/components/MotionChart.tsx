@@ -30,7 +30,6 @@ export default function MotionChart({
         <View style={styles.container}>
             <LineChart
                 data={prepareChartData(data)}
-                // height={height}
                 width={windowWidth - 64}
                 spacing={3}
                 color1={theme.colors.primary}
@@ -44,9 +43,9 @@ export default function MotionChart({
                 yAxisColor={theme.colors.textSecondary}
                 yAxisTextStyle={{ color: theme.colors.textSecondary }}
                 xAxisLabelTextStyle={{ color: theme.colors.textSecondary }}
-                yAxisOffset={9}
-                stepValue={0.5}
-                noOfSections={6}
+                yAxisOffset={5}
+                stepValue={1}
+                noOfSections={10}
             />
 
             {showLegend && (
