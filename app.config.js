@@ -1,7 +1,10 @@
-{
+import 'dotenv/config';
+
+export default{
   "expo": {
     "name": "WearPark-App",
     "slug": "WearPark-App",
+    "scheme": "wearparkapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -24,7 +27,19 @@
       "predictiveBackGestureEnabled": false
     },
     "web": {
+      "output": "static",
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      "expo-secure-store",
+      "@react-native-community/datetimepicker"
+    ],
+    extra: {
+      apiUrl: process.env.API_URL,
+      env: process.env.ENV,
+      debug: process.env.DEBUG === 'true',
+    },
   }
 }
